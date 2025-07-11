@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #ffffff;
+  color: #212121;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: #1a4d2e;
+  text-decoration: none;
+  margin-left: 24px;
+  font-weight: 600;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 60px;
+  border-bottom: 1px solid #ddd;
+  font-size: 15px;
+}
+
+header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.banner {
+  width: 100%;
+  max-width: 740px;
+  margin: 40px auto 20px auto;
+  position: relative;
+}
+
+.banner img {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.banner h2 {
+  position: absolute;
+  bottom: 16px;
+  left: 20px;
+  color: white;
+  font-size: 20px;
+  font-family: 'Playfair Display', serif;
+  text-shadow: 0 0 6px black;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 740px;
+  margin: 20px auto;
+  background-color: #d5edc4;
+  border: 1px solid #a6c59f;
+  border-radius: 5px;
+  padding: 12px 16px;
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  background-color: transparent;
+}
+
+::-webkit-scrollbar {
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #a6c59f;
+  border-radius: 4px;
+}
+
