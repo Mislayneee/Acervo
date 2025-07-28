@@ -1,23 +1,10 @@
 import './index.css';
-import { Link } from 'react-router-dom';
+import Header from './Header';
 
 function Pesquisa() {
   return (
     <div>
-      {/* Barra superior */}
-      <header>
-        <h1>
-          <img src="/icon.png" alt="Logo" style={{ height: '26px', marginRight: '8px' }} />
-          Coleção de Fósseis
-        </h1>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/biblioteca">Biblioteca</Link>
-          <a href="#">Sobre</a>
-          <a href="#">Contribuir</a>
-          <a href="#">Login</a>
-        </nav>
-      </header>
+      <Header />
 
       {/* Conteúdo da busca */}
       <div style={{ display: 'flex', padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -58,8 +45,7 @@ function Pesquisa() {
             }}
           />
 
-          <p> resultados da pesquisa...</p>
-          
+          <p>resultados da pesquisa...</p>
         </section>
       </div>
     </div>

@@ -1,25 +1,13 @@
 import './index.css';
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import Header from './Header';
 
 function App() {
   const navigate = useNavigate();
 
   return (
     <div>
-      <header>
-        <h1>
-          <img src="/icon.png" alt="Logo" style={{ height: '26px', marginRight: '8px' }} />
-          Coleção de Fósseis
-        </h1>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/biblioteca">Biblioteca</Link>
-          <a href="#">Sobre</a>
-          <a href="#">Contribuir</a>
-          <a href="#">Login</a>
-        </nav>
-      </header>
+      <Header />
 
       <div className="banner">
         <img src="/folha.jpg" alt="Fóssil" />
