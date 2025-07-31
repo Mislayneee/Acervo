@@ -20,10 +20,10 @@ function Biblioteca() {
       .catch(err => console.error('Erro ao buscar fósseis:', err));
   }, []);
 
-  // Agrupar fósseis por período
   const agrupados = fosseis.reduce((acc: Record<string, Fossil[]>, item) => {
-    acc[item.periodo] = acc[item.periodo] || [];
-    acc[item.periodo].push(item);
+    const periodo = item.periodo?.toLowerCase() || 'indefinido';
+    acc[periodo] = acc[periodo] || [];
+    acc[periodo].push(item);
     return acc;
   }, {});
 
@@ -32,42 +32,98 @@ function Biblioteca() {
       <Header />
 
       <main style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+        <h2 style={{ fontSize: '28px', marginBottom: '30px' }}>Coleção de Fósseis</h2>
+
         {Object.entries(agrupados).map(([periodo, grupo]) => (
-          <section key={periodo} style={{ marginBottom: '40px' }}>
-            <h3 style={{ fontSize: "16px", marginBottom: "10px", fontWeight: "600" }}>{periodo}</h3>
+          <section key={periodo} style={{ marginBottom: '60px' }}>
             <div style={{
-              display: "flex",
-              overflowX: "auto",
-              gap: "16px",
-              paddingBottom: "8px"
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '10px'
             }}>
-              {grupo.map((fossil) => (
-                <Link
-                  key={fossil.id}
-                  to={`/detalhes/${fossil.id}`}
-                  style={{
-                    minWidth: "160px",
-                    height: "160px",
-                    borderRadius: "6px",
-                    flexShrink: 0,
-                    overflow: "hidden",
-                    backgroundColor: "#f4f4f4",
-                    textDecoration: "none",
-                    color: "black",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center"
-                  }}
-                >
-                  <img
-                    src={`${import.meta.env.VITE_API_URL}${fossil.imageUrl}`}
-                    alt={fossil.especie}
-                    style={{ width: "100%", height: "120px", objectFit: "cover" }}
-                  />
-                  <div style={{ padding: "6px", fontSize: "14px", fontWeight: "500", textAlign: "center" }}>
-                    {fossil.especie}
+              <h3 style={{ fontSize: '20px', textTransform: 'capitalize' }}>{periodo}</h3>
+              {grupo.length > 8 && (
+                <Link to={`/periodo/${periodo}`} style={{ fontSize: '14px', color: '#1a4d2e' }}>
+                  Ver todos →
+                </Link>
+              )}
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                overflowX: 'auto',
+                paddingBottom: '10px',
+                gap: '16px'
+              }}
+            >
+              {grupo.slice(0, 8).map(fossil => (
+                <Link to={`/detalhes/${fossil.id}`} key={fossil.id} style={{ textDecoration: 'none' }}>
+                  <div
+                    style={{
+                      width: '160px',
+                      height: '190px',
+                      flex: '0 0 auto',
+                      borderRadius: '10px',
+                      padding: '10px',
+                      textAlign: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'flex-start',
+                      alignItems: 'center',
+                      border: '1px solid #ccc',
+                      backgroundColor: 'transparent',
+                      transition: 'all 0.3s ease',
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                      color: '#000'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#1a4d2e';
+                      e.currentTarget.style.color = 'white';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#000';
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '160px',
+                        overflow: 'hidden',
+                        borderRadius: '6px',
+                        marginBottom: '8px'
+                      }}
+                    >
+                      <img
+                        src={`${import.meta.env.VITE_API_URL}/uploads/${fossil.imageUrl}`}
+                        alt={fossil.especie}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/icon.png';
+                        }}
+                      />
+                    </div>
+
+                    <span
+                      style={{
+                        fontSize: '14px',
+                        wordWrap: 'break-word',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {fossil.especie}
+                    </span>
                   </div>
+
                 </Link>
               ))}
             </div>

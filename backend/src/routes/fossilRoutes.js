@@ -2,51 +2,25 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { PrismaClient } = require('@prisma/client');
 const path = require('path');
-
-const prisma = new PrismaClient();
+const fossilController = require('../controllers/fossilController');
 
 // Configuração do multer
 const storage = multer.diskStorage({
   destination: 'uploads/',
   filename: (req, file, cb) => {
-    const uniqueName = Date.now() + '-' + file.originalname;
+    const uniqueName = Date.now() + '-' + file.originalname.replace(/\s+/g, '-');
     cb(null, uniqueName);
   }
 });
 const upload = multer({ storage });
 
-// POST /fosseis
-router.post('/', upload.single('imagem'), async (req, res) => {
-  console.log('🧾 req.body:', req.body);
-  console.log('🖼️ req.file:', req.file);
-  
-  try {
-    const { especie, familia, periodo, localizacao, descricao, userId } = req.body;
-    if (!userId || isNaN(parseInt(userId))) {
-        console.error('❌ userId inválido:', userId);
-        return res.status(400).json({ error: 'ID do usuário não fornecido ou inválido.' });
-    }
+// POST /api/fosseis - Enviar fósseis
+router.post('/', upload.single('imagem'), fossilController.createFossil);
 
-    const fossil = await prisma.fossil.create({
-        data: {
-            especie,
-            familia,
-            periodo,
-            local: localizacao, // ✅ corrigido
-            descricao,
-            imageUrl: `/uploads/${req.file.filename}`,
-            userId: parseInt(userId)
-        }
-        });
+// GET /api/fosseis[?periodo=Devoniano] - Listar fósseis com ou sem filtro
+router.get('/', fossilController.listFossils);
 
-
-    res.status(201).json(fossil);
-  } catch (error) {
-    console.error('❌ Erro ao cadastrar fóssil:', error);
-    res.status(500).json({ error: 'Erro interno ao cadastrar fóssil.', detalhe: error.message });
-  }
-});
+router.get('/:id', fossilController.getFossilById);
 
 module.exports = router;

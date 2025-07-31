@@ -42,7 +42,7 @@ function Detalhes() {
 
         <div style={{ display: "flex", gap: "32px", flexWrap: "wrap" }}>
           <img
-            src={`${import.meta.env.VITE_API_URL}${fossil.imageUrl}`}
+            src={`${import.meta.env.VITE_API_URL}/uploads/${fossil.imageUrl}`}
             alt={fossil.especie}
             style={{ width: "400px", height: "300px", objectFit: "cover", borderRadius: "4px" }}
           />

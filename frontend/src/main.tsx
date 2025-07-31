@@ -11,6 +11,8 @@ import Cadastro from './cadastro';
 import { AuthProvider } from './AuthContext';
 import Contribuir from './Contribuir';
 import Sobre from './Sobre';
+import Periodo from './Periodo';
+import Detalhes from './Detalhes';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -25,6 +27,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/contribuir" element={<Contribuir />} />
           <Route path="/sobre" element={<Sobre />} />
+          <Route path="/periodo/:nome" element={<Periodo />} />
+          <Route path="/detalhes/:id" element={<Detalhes />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

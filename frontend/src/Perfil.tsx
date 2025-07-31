@@ -16,7 +16,7 @@ export default function Perfil() {
     imagem: null as File | null,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormulario({ ...formulario, [e.target.name]: e.target.value });
   };
 
@@ -40,7 +40,6 @@ export default function Perfil() {
       return;
     }
     formData.append('userId', String(user.id));
-
 
     if (formulario.imagem) {
       formData.append('imagem', formulario.imagem);
@@ -84,7 +83,7 @@ export default function Perfil() {
             width: 100,
             height: 100,
             borderRadius: '50%',
-            backgroundColor: '#2a3b1f',
+            backgroundColor: '#1a4d2e',
             margin: '0 auto'
           }}></div>
           <h3 style={{ margin: '10px 0 4px', fontWeight: 600 }}>{user?.nome || 'Usuário'}</h3>
@@ -130,7 +129,7 @@ export default function Perfil() {
             <input
               type="text"
               name="especie"
-              placeholder="Ex: exemplo de espécie"
+              placeholder="Ex: Psilophyton princeps"
               value={formulario.especie}
               onChange={handleChange}
               style={inputStyle}
@@ -140,26 +139,38 @@ export default function Perfil() {
             <input
               type="text"
               name="familia"
-              placeholder="Ex: exemplo de família"
+              placeholder="Ex: Rhyniaceae"
               value={formulario.familia}
               onChange={handleChange}
               style={inputStyle}
             />
 
             <label>Período</label>
-            <input
-              type="text"
+            <select
               name="periodo"
-              placeholder="Ex: Devoniano"
               value={formulario.periodo}
               onChange={handleChange}
-              style={inputStyle}
-            />
+              style={{ ...inputStyle, backgroundColor: '#f2f5f1', cursor: 'pointer' }}
+            >
+              <option value="">Selecione um período</option>
+              <option value="Cambriano">Cambriano</option>
+              <option value="Ordoviciano">Ordoviciano</option>
+              <option value="Siluriano">Siluriano</option>
+              <option value="Devoniano">Devoniano</option>
+              <option value="Carbonífero">Carbonífero</option>
+              <option value="Permiano">Permiano</option>
+              <option value="Triássico">Triássico</option>
+              <option value="Jurássico">Jurássico</option>
+              <option value="Cretáceo">Cretáceo</option>
+              <option value="Paleógeno">Paleógeno</option>
+              <option value="Neógeno">Neógeno</option>
+              <option value="Quaternário">Quaternário</option>
+            </select>
 
             <label>Descrição</label>
             <textarea
               name="descricao"
-              placeholder="Ex: descrição detalhada..."
+              placeholder="Ex: Planta vascular terrestre do Devoniano médio com estruturas ramificadas."
               value={formulario.descricao}
               onChange={handleChange}
               rows={4}
@@ -170,7 +181,7 @@ export default function Perfil() {
             <input
               type="text"
               name="localizacao"
-              placeholder="Ex: Piauí, Brasil"
+              placeholder="Ex: Gilboa, Nova York, EUA"
               value={formulario.localizacao}
               onChange={handleChange}
               style={inputStyle}
@@ -178,6 +189,7 @@ export default function Perfil() {
 
             <label>Imagem</label>
             <div style={{
+              ...inputStyle,
               border: '1px dashed #ccc',
               padding: '30px',
               textAlign: 'center',
@@ -192,14 +204,15 @@ export default function Perfil() {
             <button
               type="submit"
               style={{
-                backgroundColor: '#26b100',
+                backgroundColor: '#1a4d2e',
                 color: '#fff',
                 padding: '10px 30px',
                 borderRadius: '20px',
                 border: 'none',
                 fontWeight: 600,
                 cursor: 'pointer'
-              }}>
+              }}
+            >
               Enviar
             </button>
           </form>
@@ -221,5 +234,6 @@ const inputStyle = {
   padding: '10px',
   backgroundColor: '#f2f5f1',
   border: 'none',
-  borderRadius: '6px'
+  borderRadius: '6px',
+  boxSizing: 'border-box' as const
 };

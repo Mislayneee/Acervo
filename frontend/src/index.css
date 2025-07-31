@@ -150,3 +150,8 @@ header h1 {
   padding: 10px;
   font-size: 14px;
 }
+
+select option:hover {
+  background-color: #1a4d2e;
+  color: white;
+}
