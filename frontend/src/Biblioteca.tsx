@@ -1,36 +1,86 @@
 import './index.css';
-import Header from './Header';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 interface Fossil {
   id: number;
   especie: string;
   periodo: string;
-  imageUrl: string;
+  imageUrl?: string | null;
+  createdAt?: string;
 }
 
 function Biblioteca() {
   const [fosseis, setFosseis] = useState<Fossil[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const apiBase = useMemo(
+    () => (import.meta.env.VITE_API_URL || '').replace(/\/$/, ''),
+    []
+  );
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/fosseis`)
-      .then(res => res.json())
-      .then(data => setFosseis(data))
-      .catch(err => console.error('Erro ao buscar fósseis:', err));
-  }, []);
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setErro(null);
+        const resp = await fetch(`${apiBase}/fosseis`);
+        const json = await resp.json();
+
+        if (!resp.ok) {
+          throw new Error(json?.error || 'Erro ao buscar fósseis.');
+        }
+
+        // Compatível com array puro OU objeto paginado { items, total... }
+        const list: Fossil[] = Array.isArray(json) ? json : (json.items ?? []);
+        if (alive) setFosseis(list);
+      } catch (e: any) {
+        if (alive) {
+          setErro(e?.message || 'Falha ao carregar a biblioteca.');
+          setFosseis([]);
+        }
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [apiBase]);
 
   const agrupados = fosseis.reduce((acc: Record<string, Fossil[]>, item) => {
-    const periodo = item.periodo?.toLowerCase() || 'indefinido';
+    const periodo = (item.periodo || 'Indefinido').toLowerCase();
     acc[periodo] = acc[periodo] || [];
     acc[periodo].push(item);
     return acc;
   }, {});
 
+  const formatSrc = (f: Fossil) => {
+    // imageUrl costuma vir como "uploads/arquivo.jpg"
+    const path = (f.imageUrl ?? '').replace(/^\/?/, ''); // remove barra inicial se houver
+    return path ? `${apiBase}/${path}` : '/icon.png';
+  };
+
+  if (loading) {
+    return (
+      <main style={{ padding: '40px 20px', maxWidth: 1200, margin: '0 auto' }}>
+        <h2 style={{ fontSize: 28, marginBottom: 30 }}>Coleção de Fósseis</h2>
+        <div className="skeleton">Carregando...</div>
+      </main>
+    );
+  }
+
+  if (erro) {
+    return (
+      <main style={{ padding: '40px 20px', maxWidth: 1200, margin: '0 auto' }}>
+        <h2 style={{ fontSize: 28, marginBottom: 30 }}>Coleção de Fósseis</h2>
+        <div className="erro">{erro}</div>
+      </main>
+    );
+  }
+
   return (
     <>
-      <Header />
-
       <main style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
         <h2 style={{ fontSize: '28px', marginBottom: '30px' }}>Coleção de Fósseis</h2>
 
@@ -98,15 +148,11 @@ function Biblioteca() {
                       }}
                     >
                       <img
-                        src={`${import.meta.env.VITE_API_URL}/uploads/${fossil.imageUrl}`}
+                        src={formatSrc(fossil)}
                         alt={fossil.especie}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
-                        }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/icon.png';
+                          (e.currentTarget as HTMLImageElement).src = '/icon.png';
                         }}
                       />
                     </div>
@@ -117,13 +163,14 @@ function Biblioteca() {
                         wordWrap: 'break-word',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
+                        maxWidth: '100%'
                       }}
+                      title={fossil.especie}
                     >
                       {fossil.especie}
                     </span>
                   </div>
-
                 </Link>
               ))}
             </div>

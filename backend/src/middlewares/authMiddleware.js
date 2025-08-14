@@ -1,21 +1,25 @@
+// src/middlewares/authMiddleware.js
 const jwt = require('jsonwebtoken');
 
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).json({ error: 'Token ausente' });
+module.exports = (req, res, next) => {
+  // Espera: Authorization: Bearer <token>
+  const authHeader = req.headers.authorization || '';
+  const parts = authHeader.split(' ');
+  const token = parts.length === 2 && /^Bearer$/i.test(parts[0]) ? parts[1] : null;
 
-  const token = authHeader.split(' ')[1];
-
-  console.log('🔐 JWT_SECRET usado:', process.env.JWT_SECRET); // Adicione isso
+  if (!token) {
+    return res.status(401).json({ error: 'Token não fornecido.' });
+  }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId;
-    next();
-  } catch (err) {
-    res.status(401).json({ error: 'Token inválido' });
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    // SEU controller assina { userId: <id> }
+    if (!payload?.userId) {
+      return res.status(401).json({ error: 'Token inválido.' });
+    }
+    req.userId = Number(payload.userId);
+    return next();
+  } catch (e) {
+    return res.status(401).json({ error: 'Token inválido ou expirado.' });
   }
 };
-
-// 🔧 Esta linha abaixo é essencial!
-module.exports = authMiddleware;

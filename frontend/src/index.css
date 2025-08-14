@@ -1,20 +1,34 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap');
 
+:root {
+  --green-700: #1a4d2e;
+  --green-600: #1f3b23;
+  --green-200: #d5edc4;
+  --green-300: #c4e3a6;
+  --gray-200: #e7ece7;
+  --gray-300: #d0d5d0;
+  --text-700: #212121;
+  --text-500: #6a6f6a;
+}
+
+* { box-sizing: border-box; }
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: #ffffff;
-  color: #212121;
+  color: var(--text-700);
   margin: 0;
   padding: 0;
 }
 
 a {
-  color: #1a4d2e;
+  color: var(--green-700);
   text-decoration: none;
   margin-left: 24px;
   font-weight: 600;
 }
 
+/* Header */
 header {
   display: flex;
   justify-content: space-between;
@@ -32,19 +46,18 @@ header h1 {
   gap: 6px;
 }
 
+/* Banner da Home */
 .banner {
   width: 100%;
   max-width: 740px;
   margin: 40px auto 20px auto;
   position: relative;
 }
-
 .banner img {
   width: 100%;
   height: auto;
   border-radius: 4px;
 }
-
 .banner h2 {
   position: absolute;
   bottom: 16px;
@@ -55,18 +68,18 @@ header h1 {
   text-shadow: 0 0 6px black;
 }
 
+/* Barra de busca da Home */
 .search-box {
   display: flex;
   align-items: center;
   width: 100%;
   max-width: 740px;
   margin: 20px auto;
-  background-color: #d5edc4;
+  background-color: var(--green-200);
   border: 1px solid #a6c59f;
   border-radius: 5px;
   padding: 12px 16px;
 }
-
 .search-box input {
   flex: 1;
   border: none;
@@ -75,15 +88,14 @@ header h1 {
   background-color: transparent;
 }
 
-::-webkit-scrollbar {
-  height: 6px;
-}
+/* Scrollbar */
+::-webkit-scrollbar { height: 6px; }
 ::-webkit-scrollbar-thumb {
   background: #a6c59f;
   border-radius: 4px;
 }
 
-/* Formulários (login e cadastro) */
+/* ===== Formulários (login e cadastro) ===== */
 .form-container {
   max-width: 400px;
   margin: 60px auto;
@@ -93,21 +105,18 @@ header h1 {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.04);
   font-family: 'Inter', sans-serif;
 }
-
 .form-container h2 {
   font-family: 'Playfair Display', serif;
   font-size: 24px;
   margin-bottom: 20px;
   text-align: center;
 }
-
 .form-container label {
   display: block;
   margin-top: 14px;
   font-size: 14px;
   font-weight: 600;
 }
-
 .form-container input {
   width: 100%;
   padding: 10px;
@@ -117,7 +126,6 @@ header h1 {
   background-color: #fdfdfd;
   font-size: 15px;
 }
-
 .form-container button {
   margin-top: 20px;
   width: 100%;
@@ -127,21 +135,16 @@ header h1 {
   border-radius: 6px;
   font-weight: bold;
   font-size: 15px;
-  color: #1a4d2e;
+  color: var(--green-700);
   cursor: pointer;
   transition: background-color 0.3s;
 }
-
-.form-container button:hover {
-  background-color: #c4e3a6;
-}
-
+.form-container button:hover { background-color: var(--green-300); }
 .troca-pagina {
   margin-top: 18px;
   text-align: center;
   font-size: 14px;
 }
-
 .input-claro {
   width: 100%;
   background-color: #eff5ef;
@@ -150,8 +153,311 @@ header h1 {
   padding: 10px;
   font-size: 14px;
 }
-
 select option:hover {
-  background-color: #1a4d2e;
+  background-color: var(--green-700);
   color: white;
+}
+
+/* ================== */
+/* PÁGINA DE PESQUISA */
+/* ================== */
+
+/* centraliza e limita largura como na Home */
+.pesquisa-page {
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 24px;
+}
+
+/* Layout */
+.pesquisa-page .layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  text-align: left;
+}
+
+/* Sidebar filtros */
+.sidebar {
+  background: #f7f9f7;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.filtro {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.filtro label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.filtro select,
+.filtro input {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--gray-300);
+  font-size: 0.9rem;
+}
+
+/* Topbar */
+.content .topbar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.searchbar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f4f7f4;
+  border-radius: 24px;
+  padding: 6px 12px;
+}
+.searchbar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.95rem;
+}
+.searchbar button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.ordenar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.ordenar select {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--gray-300);
+  font-size: 0.9rem;
+}
+
+/* Resultados */
+.results {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  display: grid;
+  gap: 12px;
+}
+.card {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  align-items: center;
+}
+.thumb { /* fallback blocado */
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  background: var(--green-600);
+}
+.meta .title {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.meta .line {
+  color: var(--text-500);
+  font-size: 0.85rem;
+}
+
+/* Imagem real e fallback */
+.thumb-img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+.thumb-fallback {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  background: var(--green-600);
+}
+.title-link { text-decoration: none; color: inherit; }
+.title-link:hover .title { text-decoration: underline; }
+
+/* Paginação */
+.paginacao {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0 24px;
+}
+.paginacao button {
+  border: 1px solid var(--gray-200);
+  background: #fff;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.paginacao button.active {
+  background: var(--green-600);
+  color: white;
+}
+.paginacao button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Estados */
+.skeleton, .vazio, .erro {
+  padding: 12px;
+  text-align: center;
+  color: var(--text-500);
+}
+
+/* Responsivo simples */
+@media (max-width: 900px) {
+  .pesquisa-page .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === Header alinhado === */
+header nav.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* links dentro do header não herdam a margem global */
+header nav.header-nav a {
+  margin-left: 0;
+}
+
+/* ====== Biblioteca: correções de card/título/kebab ====== */
+.bib-card {
+  position: relative;
+  border: 1px solid #e7ece7;
+  border-radius: 12px;
+  background: #fff;
+  /* importante: deixa o menu "⋯" aparecer para fora */
+  overflow: visible;
+}
+
+.bib-thumb-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #f4f7f4;
+  /* corta somente a imagem dentro do topo do card */
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  overflow: hidden;
+}
+
+.bib-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bib-kebab {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5; /* acima da imagem */
+}
+.bib-kebab-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #e7ece7;
+  background: rgba(255,255,255,0.95);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* dropdown */
+.bib-menu {
+  position: absolute;
+  right: 0;
+  top: 36px;
+  background: #fff;
+  border: 1px solid #e7ece7;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  min-width: 160px;
+  padding: 6px 0;
+  z-index: 10;
+}
+.bib-menu button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+.bib-menu button:hover { background: #f7f9f7; }
+.bib-menu .danger { color: #a11; font-weight: 700; }
+
+/* título com clamp em 2 linhas */
+.bib-title {
+  font-weight: 700;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* para Chrome, Edge, Safari */
+  line-clamp: 2; /* versão padrão (ainda experimental) */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word; /* evita quebrar layout em palavras enormes */
+}
+.bib-date {
+  color: #6a6f6a;
+  font-size: 13px;
+  margin-top: 2px;
+}
+/* ====== Hover dos cards (Biblioteca + Período) ====== */
+.bib-card {
+  transition: background-color .25s ease, box-shadow .25s ease, transform .2s ease, border-color .25s ease;
+  cursor: pointer;
+  color: inherit; /* mantém o texto herdando a cor do card */
+}
+.bib-card:hover {
+  background: #1a4d2e;     /* verde do site */
+  color: #fff;              /* texto branco */
+  box-shadow: 0 6px 16px rgba(0,0,0,.10);
+  transform: translateY(-2px);
+  border-color: #1a4d2e;
+}
+.bib-card:hover .bib-date { color: #fff; }
+.bib-card:hover .bib-title { color: #fff; }
+
+/* (Opcional) dar uma leve “escurecida” na imagem no hover, sem trocar a imagem */
+.bib-thumb-wrap { position: relative; }
+.bib-thumb-wrap::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0); 
+  transition: background .25s ease;
+  pointer-events: none;
+}
+.bib-card:hover .bib-thumb-wrap::after {
+  background: rgba(0,0,0,0.10); /* leve véu sobre a foto */
 }

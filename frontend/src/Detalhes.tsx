@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import Header from './Header';
 
 interface Fossil {
   id: number;
@@ -26,7 +25,6 @@ function Detalhes() {
 
   return (
     <>
-      <Header />
       <main style={{ maxWidth: "1000px", margin: "0 auto", padding: "40px 20px" }}>
         <div style={{ marginBottom: "16px", fontSize: "14px" }}>
           <Link to="/biblioteca" style={{ color: "#666", textDecoration: "none" }}>

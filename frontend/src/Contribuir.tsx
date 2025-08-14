@@ -1,4 +1,3 @@
-import Header from './Header';
 import { useNavigate } from 'react-router-dom';
 
 function Contribuir() {
@@ -10,7 +9,6 @@ function Contribuir() {
 
   return (
     <>
-      <Header />
       <div style={{ padding: '40px 20px', maxWidth: '800px', margin: '0 auto' }}>
         <h2 style={{ marginBottom: '20px' }}>Como Contribuir com o Acervo</h2>
 

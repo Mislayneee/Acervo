@@ -1,10 +1,7 @@
-// src/Sobre.tsx
-import Header from './Header';
 
 export default function Sobre() {
   return (
     <>
-      <Header />
       <main style={{ maxWidth: '800px', margin: '60px auto', padding: '0 20px' }}>
         <h2>Sobre o Acervo</h2>
         <p>

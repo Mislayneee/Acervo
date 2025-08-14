@@ -20,7 +20,7 @@ model Fossil {
   especie     String
   familia     String
   periodo     String
-  local       String
+  localizacao String
   descricao   String
   imageUrl    String?
   userId      Int

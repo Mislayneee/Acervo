@@ -13,11 +13,17 @@ import Contribuir from './Contribuir';
 import Sobre from './Sobre';
 import Periodo from './Periodo';
 import Detalhes from './Detalhes';
+import Header from './Header';
+import EditarFossil from './EditarFossil';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <AuthProvider>
       <BrowserRouter>
+        {}
+        <Header />
+
+        {/* Conteúdo que muda conforme a rota */}
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/biblioteca" element={<Biblioteca />} />
@@ -29,6 +35,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/periodo/:nome" element={<Periodo />} />
           <Route path="/detalhes/:id" element={<Detalhes />} />
+          <Route path="/editar/:id" element={<EditarFossil />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

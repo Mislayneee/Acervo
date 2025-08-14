@@ -1,109 +1,138 @@
+// src/Periodo.tsx
 import './index.css';
-import Header from './Header';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
 interface Fossil {
   id: number;
   especie: string;
   periodo: string;
-  imageUrl: string;
-  local?: string;
+  imageUrl?: string | null;
+  localizacao?: string | null;
+  createdAt?: string;
 }
 
+type ApiResp = {
+  items: Fossil[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
+const PAGE_SIZE = 24;
+
 function Periodo() {
-  const { nome } = useParams();
+  const { nome } = useParams(); // ex.: "jurássico" (minúsculas do agrupamento)
   const [fosseis, setFosseis] = useState<Fossil[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const apiBase = useMemo(
+    () => (import.meta.env.VITE_API_URL || '').replace(/\/$/, ''),
+    []
+  );
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/fosseis?periodo=${nome}`)
-      .then(res => res.json())
-      .then(data => setFosseis(data))
-      .catch(err => console.error('Erro ao buscar fósseis:', err));
-  }, [nome]);
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setErro(null);
 
-  return (
-    <>
-      <Header />
+        const qs = new URLSearchParams();
+        if (nome) qs.set('periodo', nome); // backend faz case-insensitive
+        qs.set('order', 'createdAt:desc');
+        qs.set('page', '1');
+        qs.set('pageSize', String(PAGE_SIZE));
 
-      <main style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
-        <h2 style={{ fontSize: '28px', marginBottom: '30px', textTransform: 'capitalize' }}>
-          Fósseis do período {nome}
-        </h2>
+        const resp = await fetch(`${apiBase}/fosseis?${qs.toString()}`);
+        const json = await resp.json();
+        if (!resp.ok) throw new Error(json?.error || 'Erro ao buscar fósseis.');
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '20px',
-          }}
-        >
-          {fosseis.map((fossil) => (
-            <Link
-              to={`/detalhes/${fossil.id}`}
-              key={fossil.id}
-              style={{ textDecoration: 'none', color: 'inherit' }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  border: '1px solid #ccc',
-                  borderRadius: '10px',
-                  padding: '10px',
-                  height: '120px',
-                  transition: 'background-color 0.3s, color 0.3s',
-                  cursor: 'pointer',
-                  backgroundColor: 'transparent',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#1a4d2e';
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = 'inherit';
-                }}
-              >
-                <img
-                  src={`${import.meta.env.VITE_API_URL}/uploads/${fossil.imageUrl}`}
-                  alt={fossil.especie}
-                  style={{
-                    width: '100px',
-                    height: '100%',
-                    objectFit: 'cover',
-                    borderRadius: '8px',
-                    flexShrink: 0,
-                    marginRight: '10px',
-                  }}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/icon.png';
-                  }}
-                />
+        // aceita tanto array quanto objeto paginado
+        const list: Fossil[] = Array.isArray(json) ? json : (json.items ?? []);
+        if (alive) setFosseis(list);
+      } catch (e: any) {
+        if (alive) {
+          setErro(e?.message || 'Falha ao carregar.');
+          setFosseis([]);
+        }
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [nome, apiBase]);
 
-                <div style={{ flex: 1 }}>
-                  <h4
-                    style={{
-                      margin: 0,
-                      fontSize: '16px',
-                      marginBottom: '6px',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {fossil.especie}
-                  </h4>
-                  <p style={{ margin: 0, fontSize: '14px', opacity: 0.8 }}>
-                    {fossil.local || 'Local desconhecido'}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
+  const formatSrc = (f: Fossil) => {
+    const path = (f.imageUrl ?? '').replace(/^\/?/, ''); // remove "/" inicial
+    return path ? `${apiBase}/${path}` : '/icon.png';
+  };
+
+  const tituloPeriodo = (nome || '').charAt(0).toUpperCase() + (nome || '').slice(1);
+
+  if (loading) {
+    return (
+      <main style={{ padding: '40px 20px', maxWidth: 1200, margin: '0 auto' }}>
+        <h2 style={{ fontSize: 28, marginBottom: 30 }}>Fósseis do período {tituloPeriodo}</h2>
+        <div className="skeleton">Carregando...</div>
+      </main>
+    );
+  }
+
+  if (erro) {
+    return (
+      <main style={{ padding: '40px 20px', maxWidth: 1200, margin: '0 auto' }}>
+        <h2 style={{ fontSize: 28, marginBottom: 30 }}>Fósseis do período {tituloPeriodo}</h2>
+        <div className="erro">{erro}</div>
+        <div style={{ marginTop: 12 }}>
+          <Link to="/biblioteca" style={{ color: '#1a4d2e', fontWeight: 600 }}>← Voltar à biblioteca</Link>
         </div>
       </main>
-    </>
+    );
+  }
+
+  return (
+    <main style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <h2 style={{ fontSize: '28px', marginBottom: '30px', textTransform: 'capitalize' }}>
+        Fósseis do período {tituloPeriodo}
+      </h2>
+
+      {fosseis.length === 0 && (
+        <div className="vazio">Nenhum fóssil encontrado para este período.</div>
+      )}
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '16px',
+        }}
+      >
+        {fosseis.map((fossil) => (
+          <Link
+            to={`/detalhes/${fossil.id}`}
+            key={fossil.id}
+            className="bib-card"
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            <div className="bib-thumb-wrap">
+              <img
+                src={formatSrc(fossil)}
+                alt={fossil.especie}
+                className="bib-thumb"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/icon.png'; }}
+              />
+            </div>
+
+            <div style={{ padding: '10px 12px' }}>
+              <div className="bib-title">{fossil.especie || '—'}</div>
+              <div className="bib-date">{fossil.localizacao || 'Local desconhecido'}</div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </main>
   );
 }
 
