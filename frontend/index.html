@@ -1,12 +1,52 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+
+    <!-- SEO básico -->
+    <title>Acervo de Fósseis Vegetais</title>
+    <meta
+      name="description"
+      content="Protótipo funcional de um acervo digital de fósseis vegetais: busca, filtros, biblioteca pessoal e contribuições com imagens."
+    />
+    <meta name="theme-color" content="#1a4d2e" />
+    <meta name="color-scheme" content="light only" />
+
+    <!-- Ícones (coloque arquivos em /public se tiver) -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Open Graph / Social (opcional, mas bom para apresentação) -->
+    <meta property="og:title" content="Acervo de Fósseis Vegetais" />
+    <meta
+      property="og:description"
+      content="Protótipo funcional de um acervo digital de fósseis vegetais."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/cover.png" />
+    <meta property="og:url" content="http://localhost:5173" />
+
+    <!-- Fontes: preconnect + stylesheet (mais rápido que @import) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Prefetch opcional de rotas/imagens que você usa muito -->
+    <!-- <link rel="prefetch" href="/alguma-rota" as="document"> -->
+
   </head>
   <body>
+    <noscript>
+      Ative o JavaScript para usar o Acervo de Fósseis Vegetais.
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

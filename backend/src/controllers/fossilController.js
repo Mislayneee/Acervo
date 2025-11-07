@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 const fs = require('fs');
 const path = require('path');
 
-// Helpers
+// ---------- Helpers ----------
 function nonEmpty(v) {
   return typeof v === 'string' && v.trim().length > 0;
 }
@@ -11,7 +11,6 @@ function toUploadsRelative(filename) {
   return filename ? `uploads/${filename}` : null;
 }
 function absoluteFromRelative(p) {
-  // aceita "uploads/arquivo.jpg" e retorna caminho absoluto
   if (!p) return null;
   const rel = p.startsWith('uploads/') ? p : `uploads/${p}`.replace(/^\/+/, '');
   return path.resolve(rel);
@@ -63,7 +62,15 @@ const createFossil = async (req, res) => {
         imageUrl,
         userId: Number(userId),
       },
-      include: { user: true },
+      include: {
+        user: {
+          select: {
+            id: true,
+            nome: true,
+            email: true, // selecionei email caso queira usar depois
+          }
+        }
+      }
     });
 
     return res.status(201).json({ message: 'Fóssil criado com sucesso', fossil });
@@ -86,12 +93,40 @@ const getFossilById = async (req, res) => {
     if (Number.isNaN(id)) {
       return res.status(400).json({ error: 'ID inválido.' });
     }
+
     const fossil = await prisma.fossil.findUnique({
       where: { id },
-      include: { user: true },
+      select: {
+        id: true,
+        especie: true,
+        familia: true,
+        periodo: true,
+        localizacao: true,
+        descricao: true,
+        imageUrl: true,
+        createdAt: true,
+        user: {
+          select: {
+            id: true,
+            nome: true,
+            email: true, // se não quiser expor, pode remover
+          }
+        }
+      }
     });
+
     if (!fossil) return res.status(404).json({ error: 'Fóssil não encontrado.' });
-    return res.status(200).json(fossil);
+
+    // Sem preferências ainda: devolvemos author básico
+    const author = fossil.user ? {
+      nome: fossil.user.nome,
+      email: fossil.user.email, // remova se não quiser expor
+    } : null;
+
+    return res.status(200).json({
+      ...fossil,
+      author,
+    });
   } catch (err) {
     console.error('❌ Erro ao buscar fóssil por ID:', err);
     return res.status(500).json({ error: 'Erro ao buscar fóssil.', detalhe: err.message });
@@ -100,7 +135,6 @@ const getFossilById = async (req, res) => {
 
 /**
  * PUT /fosseis/:id (PROTEGIDA, somente DONO)
- * Atualiza campos enviados; se enviar nova imagem, substitui e remove a antiga.
  */
 const updateFossil = async (req, res) => {
   try {
@@ -121,12 +155,10 @@ const updateFossil = async (req, res) => {
     if (localizacao !== undefined) data.localizacao = String(localizacao).trim();
     if (descricao !== undefined) data.descricao = String(descricao).trim();
 
-    // Imagem nova?
     if (req.file?.filename) {
       const newRel = toUploadsRelative(req.file.filename);
       data.imageUrl = newRel;
 
-      // remove a antiga (se houver)
       if (existing.imageUrl) {
         safeUnlink(absoluteFromRelative(existing.imageUrl));
       }
@@ -135,7 +167,15 @@ const updateFossil = async (req, res) => {
     const updated = await prisma.fossil.update({
       where: { id },
       data,
-      include: { user: true },
+      include: {
+        user: {
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+          }
+        }
+      },
     });
 
     return res.json({ message: 'Atualizado com sucesso.', fossil: updated });
@@ -147,7 +187,6 @@ const updateFossil = async (req, res) => {
 
 /**
  * DELETE /fosseis/:id (PROTEGIDA, somente DONO)
- * Remove o registro e a imagem do disco (se existir).
  */
 const deleteFossil = async (req, res) => {
   try {
@@ -159,7 +198,6 @@ const deleteFossil = async (req, res) => {
     if (!existing) return res.status(404).json({ error: 'Fóssil não encontrado.' });
     if (existing.userId !== Number(userId)) return res.status(403).json({ error: 'Sem permissão.' });
 
-    // apaga imagem (se houver)
     if (existing.imageUrl) {
       safeUnlink(absoluteFromRelative(existing.imageUrl));
     }

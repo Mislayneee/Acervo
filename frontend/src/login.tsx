@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "./AuthContext";
+import "./index.css";
 
-function Login() {
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -15,44 +16,55 @@ function Login() {
     setSubmitting(true);
     try {
       await login(email, senha);
-      navigate('/perfil');
+      navigate("/perfil");
     } catch (err: any) {
-      alert(err?.message || 'Credenciais inválidas.');
+      alert(err?.message || "Credenciais inválidas.");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="form-container">
-      <h2>Entrar</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Email:</label>
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+    <div className="signup-wrapper login-page">
+      <div className="signup-card">
+        <header className="signup-header">
+          <h1 className="signup-title">Entrar na sua conta</h1>
+        </header>
 
-        <label>Senha:</label>
-        <input
-          type="password"
-          required
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-        />
+        <form className="signup-form" onSubmit={handleSubmit}>
+          <div className="field">
+            <label>E-mail</label>
+            <input
+              className="input"
+              type="email"
+              placeholder="seuemail@exemplo.com"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
 
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Entrando...' : 'Entrar'}
-        </button>
-      </form>
+          <div className="field">
+            <label>Senha</label>
+            <input
+              className="input"
+              type="password"
+              placeholder="Sua senha"
+              required
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+            />
+          </div>
 
-      <div className="troca-pagina">
-        Não tem conta? <Link to="/cadastro">Cadastre-se</Link>
+          <button type="submit" className="btn-primary" disabled={submitting}>
+            {submitting ? "Entrando..." : "Entrar"}
+          </button>
+        </form>
+
+        <div className="signup-footer">
+          Não tem uma conta? <Link to="/cadastro">Cadastre-se</Link>
+        </div>
       </div>
     </div>
   );
 }
-
-export default Login;

@@ -1,411 +1,421 @@
+/* === Fontes === */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap');
 
+/* === Tema (variáveis) === */
 :root {
-  --green-700: #1a4d2e;
+  /* Paleta existente (mantida p/ compatibilidade) */
+  --green-700: #1a4d2e;   /* primária escura */
   --green-600: #1f3b23;
-  --green-200: #d5edc4;
   --green-300: #c4e3a6;
-  --gray-200: #e7ece7;
+  --green-200: #d5edc4;
   --gray-300: #d0d5d0;
+  --gray-200: #e7ece7;
   --text-700: #212121;
   --text-500: #6a6f6a;
+
+  /* Nomes “semânticos” (usados nos novos utilitários) */
+  --color-bg: #ffffff;
+  --color-text: var(--text-700);
+  --color-muted: var(--text-500);
+  --color-border: var(--gray-200);
+  --color-primary: var(--green-700);
+  --color-primary-600: #12805c;   /* hover */
+  --color-primary-50: #e9f6f1;    /* realce leve */
+
+  /* Tipografia/espaços */
+  --font-title: "Playfair Display", serif;
+  --font-body: "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px;
+  --space-4: 16px; --space-5: 24px; --space-6: 32px;
+
+  /* Layout */
+  --radius: 12px;
+  --shadow: 0 6px 18px rgba(0,0,0,.06);
+  --maxw: 1200px;
 }
 
+/* === Base === */
 * { box-sizing: border-box; }
-
+html, body, #root { height: 100%; }
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #ffffff;
-  color: var(--text-700);
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text);
   margin: 0;
   padding: 0;
 }
 
-a {
-  color: var(--green-700);
-  text-decoration: none;
-  margin-left: 24px;
-  font-weight: 600;
+a { color: var(--green-700); text-decoration: none; margin-left: 24px; font-weight: 600; }
+
+/* === Utilitários globais === */
+.container { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 var(--space-5); }
+.h1{ font-family: var(--font-title); font-size: 2rem; margin: var(--space-6) 0 var(--space-4); }
+.h2{ font-family: var(--font-title); font-size: 1.5rem; margin: var(--space-5) 0 var(--space-3); }
+.badge{ background: var(--color-primary-50); color: var(--color-primary); padding: 2px 8px; border-radius: 99px; font-size:.8rem; }
+.muted{ color: var(--color-muted); }
+.ellipsis{ overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+/* Grid responsivo de cards (para Biblioteca/Período/Pessoal) */
+.grid-cards{ display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: var(--space-5); }
+@media (max-width: 1200px){ .grid-cards{ grid-template-columns: repeat(3,1fr); } }
+@media (max-width: 900px){  .grid-cards{ grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 600px){  .grid-cards{ grid-template-columns: 1fr; } }
+
+/* Imagem padronizada 4:3 para cards */
+.card-image{
+  width: 100%; aspect-ratio: 4/3; object-fit: cover;
+  border-radius: var(--radius); display: block; background: #f3f4f6;
 }
 
-/* Header */
+/* === Header === */
 header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 60px;
-  border-bottom: 1px solid #ddd;
-  font-size: 15px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 60px; border-bottom: 1px solid #ddd; font-size: 15px;
 }
+header h1 { font-family: var(--font-title); font-size: 22px; display: flex; align-items: center; gap: 6px; }
+header nav.header-nav { display: flex; align-items: center; gap: 16px; }
+header nav.header-nav a { margin-left: 0; }
 
-header h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 22px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Banner da Home */
-.banner {
-  width: 100%;
-  max-width: 740px;
-  margin: 40px auto 20px auto;
-  position: relative;
-}
-.banner img {
-  width: 100%;
-  height: auto;
-  border-radius: 4px;
-}
+/* === Banner Home === */
+.banner { width: 100%; max-width: 740px; margin: 40px auto 20px; position: relative; }
+.banner img { width: 100%; height: auto; border-radius: 4px; }
 .banner h2 {
-  position: absolute;
-  bottom: 16px;
-  left: 20px;
-  color: white;
-  font-size: 20px;
-  font-family: 'Playfair Display', serif;
-  text-shadow: 0 0 6px black;
+  position: absolute; bottom: 16px; left: 20px; color: #fff; font-size: 20px;
+  font-family: var(--font-title); text-shadow: 0 0 6px rgba(0,0,0,.8);
 }
 
-/* Barra de busca da Home */
-.search-box {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 740px;
-  margin: 20px auto;
-  background-color: var(--green-200);
-  border: 1px solid #a6c59f;
-  border-radius: 5px;
-  padding: 12px 16px;
+/* === Busca Home === */
+.search-box{
+  display: flex; align-items: center; width: 100%; max-width: 740px; margin: 20px auto;
+  background: var(--green-200); border: 1px solid #a6c59f; border-radius: 5px; padding: 12px 16px;
 }
-.search-box input {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 16px;
-  background-color: transparent;
-}
+.search-box input{ flex:1; border:none; outline:none; font-size:16px; background:transparent; }
 
 /* Scrollbar */
-::-webkit-scrollbar { height: 6px; }
-::-webkit-scrollbar-thumb {
-  background: #a6c59f;
-  border-radius: 4px;
-}
+::-webkit-scrollbar { height: 6px; width: 8px; }
+::-webkit-scrollbar-thumb { background: #a6c59f; border-radius: 4px; }
 
-/* ===== Formulários (login e cadastro) ===== */
-.form-container {
-  max-width: 400px;
-  margin: 60px auto;
-  padding: 24px;
-  background-color: #fdfdf9;
-  border-radius: 10px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.04);
-  font-family: 'Inter', sans-serif;
+/* === Formulários (login/cadastro) === */
+.form-container{
+  max-width: 400px; margin: 60px auto; padding: 24px; background: #fdfdf9;
+  border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,.04); font-family: var(--font-body);
 }
-.form-container h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 24px;
-  margin-bottom: 20px;
-  text-align: center;
+.form-container h2{ font-family: var(--font-title); font-size: 24px; margin-bottom: 20px; text-align: center; }
+.form-container label{ display: block; margin-top: 14px; font-size: 14px; font-weight: 600; }
+.form-container input{
+  width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 10px;
+  background: #fdfdfd; font-size: 15px; outline: none;
 }
-.form-container label {
-  display: block;
-  margin-top: 14px;
-  font-size: 14px;
-  font-weight: 600;
+.form-container input:focus{
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-50);
 }
-.form-container input {
-  width: 100%;
-  padding: 10px;
-  margin-top: 6px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fdfdfd;
-  font-size: 15px;
+.form-container button{
+  margin-top: 20px; width: 100%; background: #d8efc4; border: none; padding: 12px;
+  border-radius: 10px; font-weight: 700; font-size: 15px; color: var(--green-700);
+  cursor: pointer; transition: background-color .25s ease;
 }
-.form-container button {
-  margin-top: 20px;
-  width: 100%;
-  background-color: #d8efc4;
-  border: none;
-  padding: 12px;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 15px;
-  color: var(--green-700);
-  cursor: pointer;
-  transition: background-color 0.3s;
+.form-container button:hover{ background: var(--green-300); }
+.troca-pagina{ margin-top: 18px; text-align: center; font-size: 14px; }
+.input-claro{
+  width: 100%; background: #eff5ef; border: 1px solid #ccc; border-radius: 10px; padding: 10px; font-size: 14px;
 }
-.form-container button:hover { background-color: var(--green-300); }
-.troca-pagina {
-  margin-top: 18px;
-  text-align: center;
-  font-size: 14px;
-}
-.input-claro {
-  width: 100%;
-  background-color: #eff5ef;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 10px;
-  font-size: 14px;
-}
-select option:hover {
-  background-color: var(--green-700);
-  color: white;
-}
+select option:hover{ background: var(--green-700); color: #fff; }
 
-/* ================== */
-/* PÁGINA DE PESQUISA */
-/* ================== */
-
-/* centraliza e limita largura como na Home */
-.pesquisa-page {
-  max-width: 1100px;
-  margin: 24px auto;
-  padding: 0 24px;
-}
-
-/* Layout */
-.pesquisa-page .layout {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 24px;
-  text-align: left;
-}
+/* === Página de Pesquisa === */
+.pesquisa-page{ max-width: 1100px; margin: 24px auto; padding: 0 24px; }
+.pesquisa-page .layout{ display: grid; grid-template-columns: 260px 1fr; gap: 24px; text-align: left; }
 
 /* Sidebar filtros */
-.sidebar {
-  background: #f7f9f7;
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.sidebar{
+  background: #f7f9f7; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 16px;
+  border: 1px solid var(--color-border);
 }
-.filtro {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.filtro{ display: flex; flex-direction: column; gap: 6px; }
+.filtro label{ font-weight: 600; font-size: .95rem; }
+.filtro select, .filtro input{
+  padding: 10px 12px; border-radius: 10px; border: 1px solid var(--gray-300); font-size: .95rem; outline: none; background: #fff;
 }
-.filtro label {
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-.filtro select,
-.filtro input {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid var(--gray-300);
-  font-size: 0.9rem;
+.filtro select:focus, .filtro input:focus{
+  border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-50);
 }
 
 /* Topbar */
-.content .topbar {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
+.content .topbar{ display: flex; gap: 16px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+.searchbar{
+  flex: 1; display: flex; align-items: center; gap: 8px; background: #f4f7f4; border-radius: 24px; padding: 6px 12px;
+  border: 1px solid var(--color-border);
 }
-.searchbar {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #f4f7f4;
-  border-radius: 24px;
-  padding: 6px 12px;
+.searchbar input{ flex:1; background: transparent; border: none; outline: none; font-size: .95rem; }
+.searchbar button{ background: transparent; border: none; cursor: pointer; font-size: 1rem; }
+.ordenar{ display: flex; gap: 8px; align-items: center; }
+.ordenar select{
+  padding: 8px 10px; border-radius: 10px; border: 1px solid var(--gray-300); font-size: .9rem; outline: none; background: #fff;
 }
-.searchbar input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  font-size: 0.95rem;
-}
-.searchbar button {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-}
-.ordenar {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-.ordenar select {
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--gray-300);
-  font-size: 0.9rem;
-}
+.ordenar select:focus{ border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-50); }
 
-/* Resultados */
-.results {
-  list-style: none;
-  padding: 0;
-  margin: 12px 0;
-  display: grid;
-  gap: 12px;
+/* Resultados (lista compacta) */
+.results{ list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 12px; }
+.card{
+  display: grid; grid-template-columns: 56px 1fr; gap: 12px; padding: 10px 12px; background: #fff;
+  border: 1px solid var(--gray-200); border-radius: 12px; align-items: center;
 }
-.card {
-  display: grid;
-  grid-template-columns: 56px 1fr;
-  gap: 12px;
-  padding: 10px 12px;
-  background: #fff;
-  border: 1px solid var(--gray-200);
-  border-radius: 12px;
-  align-items: center;
+.thumb, .thumb-img, .thumb-fallback{
+  width: 56px; height: 56px; border-radius: 8px; display: block;
 }
-.thumb { /* fallback blocado */
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
-  background: var(--green-600);
-}
-.meta .title {
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-.meta .line {
-  color: var(--text-500);
-  font-size: 0.85rem;
-}
-
-/* Imagem real e fallback */
-.thumb-img {
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
-  border-radius: 8px;
-  display: block;
-}
-.thumb-fallback {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
-  background: var(--green-600);
-}
-.title-link { text-decoration: none; color: inherit; }
-.title-link:hover .title { text-decoration: underline; }
+.thumb { background: var(--green-600); }
+.thumb-img{ object-fit: cover; }
+.thumb-fallback{ background: var(--green-600); }
+.meta .title{ font-weight: 700; font-size: .95rem; }
+.meta .line{ color: var(--text-500); font-size: .85rem; }
 
 /* Paginação */
-.paginacao {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  justify-content: center;
-  margin: 16px 0 24px;
+.paginacao{
+  display: flex; gap: 6px; align-items: center; justify-content: center; margin: 16px 0 24px;
 }
-.paginacao button {
-  border: 1px solid var(--gray-200);
-  background: #fff;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  font-size: 0.9rem;
-  cursor: pointer;
+.paginacao button{
+  border: 1px solid var(--gray-200); background: #fff; border-radius: 50%; width: 32px; height: 32px; font-size: .9rem; cursor: pointer;
 }
-.paginacao button.active {
-  background: var(--green-600);
-  color: white;
-}
-.paginacao button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+.paginacao button.active{ background: var(--green-600); color: #fff; }
+.paginacao button:disabled{ opacity: .5; cursor: not-allowed; }
 
 /* Estados */
-.skeleton, .vazio, .erro {
-  padding: 12px;
-  text-align: center;
-  color: var(--text-500);
-}
+.skeleton, .vazio, .erro{ padding: 12px; text-align: center; color: var(--text-500); }
 
-/* Responsivo simples */
-@media (max-width: 900px) {
-  .pesquisa-page .layout {
-    grid-template-columns: 1fr;
-  }
-}
+/* Responsivo */
+@media (max-width: 900px){ .pesquisa-page .layout{ grid-template-columns: 1fr; } }
 
-/* === Header alinhado === */
-header nav.header-nav {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+/* === Biblioteca: cards com imagem 4:3 e menu ⋯ clicável === */
+.bib-card{
+  position: relative; border: 1px solid var(--color-border); border-radius: 12px; background: #fff;
+  transition: background-color .25s ease, box-shadow .25s ease, transform .2s ease, border-color .25s ease;
+  cursor: pointer; color: inherit; overflow: visible;
 }
-
-/* links dentro do header não herdam a margem global */
-header nav.header-nav a {
-  margin-left: 0;
+.bib-card:hover{
+  background: var(--green-700); color: #fff; box-shadow: 0 6px 16px rgba(0,0,0,.10); transform: translateY(-2px); border-color: var(--green-700);
 }
+.bib-thumb-wrap{ position: relative; width: 100%; aspect-ratio: 4/3; background: #f4f7f4; border-top-left-radius: 12px; border-top-right-radius: 12px; overflow: hidden; }
+.bib-thumb{ width: 100%; height: 100%; object-fit: cover; display: block; }
+.bib-thumb-wrap::after{ content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background .25s ease; pointer-events: none; }
+.bib-card:hover .bib-thumb-wrap::after{ background: rgba(0,0,0,.10); }
 
-/* ====== Biblioteca: correções de card/título/kebab ====== */
-.bib-card {
+.bib-kebab{ position: absolute; top: 8px; right: 8px; z-index: 5; }
+.bib-kebab-btn{
+  width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--color-border);
+  background: rgba(255,255,255,.95); cursor: pointer; font-size: 16px; line-height: 1;
+}
+.bib-menu{
+  position: absolute; right: 0; top: 36px; background: #fff; border: 1px solid var(--color-border);
+  border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,.08); min-width: 160px; padding: 6px 0; z-index: 10;
+}
+.bib-menu button{
+  width: 100%; text-align: left; padding: 8px 12px; background: transparent; border: none; cursor: pointer; font-size: 14px;
+}
+.bib-menu button:hover{ background: #f7f9f7; }
+.bib-menu .danger{ color: #a11; font-weight: 700; }
+
+/* Título com clamp 2 linhas (evita quebrar layout) */
+.bib-title{
+  font-weight: 700; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; word-break: break-word;
+}
+.bib-date{ color: var(--text-500); font-size: 13px; margin-top: 2px; }
+.bib-card:hover .bib-date, .bib-card:hover .bib-title{ color: #fff; }
+
+/* === Botões genéricos (opcional, p/ usar fora do formulário) === */
+.btn{
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 14px; border-radius: 12px; border: 1px solid transparent; cursor: pointer; font-weight: 600;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.btn-primary{ background: var(--color-primary); color: #fff; }
+.btn-primary:hover{ background: var(--color-primary-600); }
+.btn-ghost{
+  background: transparent; color: var(--color-primary); border-color: var(--color-primary);
+}
+.btn-ghost:hover{ background: var(--color-primary-50); }
+
+/* ===== Biblioteca Pessoal: hover verde idêntico ===== */
+
+/* Garante que o seletor vence qualquer estilo anterior */
+:where(.perfil-page) :where(.grid-cards) :where(.bib-card) {
   position: relative;
-  border: 1px solid #e7ece7;
-  border-radius: 12px;
   background: #fff;
-  /* importante: deixa o menu "⋯" aparecer para fora */
-  overflow: visible;
+  border: 1px solid #eef3ee;
+  border-radius: 12px;
+  transition: background-color .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+  overflow: hidden; /* impede “vazar” nas bordas */
 }
 
-.bib-thumb-wrap {
+/* Overlay verde no hover (cobre o card inteiro, inclusive a imagem) */
+:where(.perfil-page) :where(.grid-cards) :where(.bib-card)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: var(--color-primary);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease;
+  z-index: 0;
+}
+
+/* Mantém os conteúdos acima do overlay */
+:where(.perfil-page) :where(.grid-cards) :where(.bib-card) > * {
   position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  background: #f4f7f4;
-  /* corta somente a imagem dentro do topo do card */
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  overflow: hidden;
+  z-index: 1;
 }
 
-.bib-thumb {
+/* Efeito ao passar o mouse: fundo verde, borda verde, leve lift */
+:where(.perfil-page) :where(.grid-cards) :where(.bib-card:hover) {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+}
+:where(.perfil-page) :where(.grid-cards) :where(.bib-card:hover)::before {
+  opacity: 1;
+}
+
+/* Texto branco no hover (título e linha “muted”) */
+:where(.perfil-page) :where(.grid-cards) :where(.bib-card:hover) .bib-title,
+:where(.perfil-page) :where(.grid-cards) :where(.bib-card:hover) .muted {
+  color: #fff !important;
+}
+
+/* Garantias para a área da imagem (mesmas dimensões dos outros cards) */
+:where(.perfil-page) :where(.grid-cards) :where(.bib-card) .bib-thumb-wrap {
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f3f7f3;
+  margin-bottom: 8px;
+}
+:where(.perfil-page) :where(.grid-cards) :where(.bib-card) .bib-thumb {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Título e subtítulo base (mesmos tamanhos dos demais) */
+:where(.perfil-page) :where(.grid-cards) :where(.bib-card) .bib-title {
+  font-size: 15px;
+  line-height: 1.25;
+  margin: 0 0 4px 0;
+  min-height: 34px; /* 2 linhas */
+}
+:where(.perfil-page) :where(.grid-cards) :where(.bib-card) .muted {
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+/* ==== FIX PACK: Cards (Biblioteca/Período/Biblioteca Pessoal) ==== */
+
+/* 1) Reset fino do card: simetria e sem heranças esquisitas */
+.bib-card {
+  box-sizing: border-box !important;
+  padding-inline: 12px !important;   /* L/R iguais */
+  padding-block: 12px !important;     /* T/B iguais */
+  border: 1px solid var(--gray-200) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  position: relative;
+  overflow: visible;                   /* deixa menu sair do card */
+  isolation: isolate;                  /* cria stacking-context local (menu por cima) */
+}
+
+/* 2) Remover qualquer “faixa”/marcador herdado no :before/:after */
+.bib-card::before,
+.bib-card::after {
+  content: none !important;
+}
+
+/* 3) Área clicável limpa */
+.bib-card > a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 4) Thumb (imagem) centralizada, sem gap de baseline */
+.bib-thumb-wrap {
+  width: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  background: #f4f7f4 !important;
+  margin: 0 0 8px 0 !important;        /* garante mesma margem dos dois lados */
+}
+.bib-thumb-wrap img,
+.bib-card .bib-thumb {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;           /* remove gap “font baseline” da imagem */
+}
+
+/* 5) Título/subtítulo compactos (como Período) */
+.bib-title {
+  font-size: 15px !important;
+  line-height: 1.25 !important;
+  margin: 0 0 4px 0 !important;
+  min-height: 34px !important;         /* alvo de ~2 linhas */
+  word-break: break-word !important;
+}
+
+/* 6) Hover sem alterar dimensões (não mude border thickness no hover) */
+.bib-card:hover {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;  /* destaque */
+  transform: translateZ(0); /* evita subpixel em alguns navegadores */
+}
+
+/* 7) Botão ⋮ vertical (fica cinza claro no hover) */
+.bib-card .kebab-vertical {
+  position: absolute;
+  right: 12px;     /* mesmo padding do card → simetria */
+  bottom: 12px;
+  z-index: 1002;   /* acima do card e vizinhos */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  width: 22px;
+  height: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 6px;
+}
+.bib-card .kebab-vertical:hover {
+  background: rgba(0, 0, 0, 0.06); /* cinza claro no hover */
+}
+.bib-card .kebab-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.75);
   display: block;
 }
 
-.bib-kebab {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 5; /* acima da imagem */
-}
-.bib-kebab-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid #e7ece7;
-  background: rgba(255,255,255,0.95);
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-}
-
-/* dropdown */
-.bib-menu {
+/* 8) Menu flutuante SEM ir “atrás” de nada */
+.bib-card .kebab-menu {
   position: absolute;
   right: 0;
-  top: 36px;
+  bottom: calc(100% + 6px);
   background: #fff;
-  border: 1px solid #e7ece7;
+  border: 1px solid var(--gray-200);
   border-radius: 10px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-  min-width: 160px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+  min-width: 170px;
   padding: 6px 0;
-  z-index: 10;
+  z-index: 1003;
 }
-.bib-menu button {
+.bib-card .kebab-menu button {
   width: 100%;
   text-align: left;
   padding: 8px 12px;
@@ -414,50 +424,293 @@ header nav.header-nav a {
   cursor: pointer;
   font-size: 14px;
 }
-.bib-menu button:hover { background: #f7f9f7; }
-.bib-menu .danger { color: #a11; font-weight: 700; }
-
-/* título com clamp em 2 linhas */
-.bib-title {
+.bib-card .kebab-menu button:last-child {
+  color: #a11;
   font-weight: 700;
-  line-height: 1.2;
-  display: -webkit-box;
-  -webkit-line-clamp: 2; /* para Chrome, Edge, Safari */
-  line-clamp: 2; /* versão padrão (ainda experimental) */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: break-word; /* evita quebrar layout em palavras enormes */
 }
-.bib-date {
-  color: #6a6f6a;
-  font-size: 13px;
+
+/* === TELA DE CADASTRO (final revisado) === */
+
+.signup-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 40px 16px 64px;
+}
+
+.signup-card {
+  width: 100%;
+  max-width: 880px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 36px 32px;
+}
+
+/* Cabeçalho */
+.signup-header {
+  text-align: center;
+  margin: 0 0 10px 0;
+}
+.signup-title {
+  font-family: var(--font-title);
+  color: var(--color-primary);
+  font-size: 2.25rem;
+  line-height: 1.15;
+  margin: 0 0 6px 0;
+}
+.signup-subtitle {
+  display: block;
+  margin: 0 auto;
+  color: var(--color-muted);
+  max-width: 760px;
+}
+
+/* Formulário principal */
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Blocos (Acesso / Perfil público / Preferências) */
+.fieldset {
+  border-top: 1px solid var(--color-border);
+  padding-top: 22px;
+  margin-top: 10px;
+}
+.fieldset:first-of-type {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+/* Título dos blocos */
+.legend {
+  font-family: var(--font-title);
+  font-size: 1.15rem;
+  color: var(--color-primary);
+  margin: 0 0 10px 0;
+  display: block;
+}
+.legend-note {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+/* Estrutura de grid */
+.grid-2,
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 16px;
+  row-gap: 16px;
+}
+@media (max-width: 900px) {
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Campo individual */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.field label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0 0 4px 0;
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  border: 1px solid var(--gray-300);
+  border-radius: 12px;
+  background: #fff;
+  padding: 11px 12px;
+  font-size: 0.95rem;
+  outline: none;
+}
+.input::placeholder {
+  color: #a0a7a0;
+}
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-50);
+}
+
+/* Checkbox */
+.checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.95rem;
+  margin: 6px 0;
+  user-select: none;
+}
+.checkbox input {
+  accent-color: var(--color-primary);
   margin-top: 2px;
 }
-/* ====== Hover dos cards (Biblioteca + Período) ====== */
-.bib-card {
-  transition: background-color .25s ease, box-shadow .25s ease, transform .2s ease, border-color .25s ease;
-  cursor: pointer;
-  color: inherit; /* mantém o texto herdando a cor do card */
-}
-.bib-card:hover {
-  background: #1a4d2e;     /* verde do site */
-  color: #fff;              /* texto branco */
-  box-shadow: 0 6px 16px rgba(0,0,0,.10);
-  transform: translateY(-2px);
-  border-color: #1a4d2e;
-}
-.bib-card:hover .bib-date { color: #fff; }
-.bib-card:hover .bib-title { color: #fff; }
 
-/* (Opcional) dar uma leve “escurecida” na imagem no hover, sem trocar a imagem */
-.bib-thumb-wrap { position: relative; }
-.bib-thumb-wrap::after {
-  content: "";
-  position: absolute; inset: 0;
-  background: rgba(0,0,0,0); 
-  transition: background .25s ease;
-  pointer-events: none;
+/* Botão principal */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
-.bib-card:hover .bib-thumb-wrap::after {
-  background: rgba(0,0,0,0.10); /* leve véu sobre a foto */
+.btn-primary:hover {
+  background: var(--color-primary-600);
+}
+
+/* Mensagem de erro */
+.form-alert {
+  background: #fff5f5;
+  border: 1px solid #ffc9c9;
+  color: #a11;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+/* Rodapé */
+.signup-footer {
+  margin-top: 16px;
+  text-align: center;
+  color: var(--color-muted);
+}
+.signup-footer a {
+  margin-left: 6px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+.signup-footer a:hover {
+  text-decoration: underline;
+}
+
+/* === Ajustes finos — Header do cadastro === */
+.signup-header{
+  text-align: center;
+  margin-bottom: 18px;
+}
+.signup-title{
+  display: block;                 /* força quebra de linha */
+  font-family: var(--font-title);
+  color: var(--color-primary);
+  font-size: 2.4rem;              /* maior que antes */
+  line-height: 1.1;
+  margin: 0 0 6px 0;
+}
+.signup-subtitle{
+  display: block;                 /* fica abaixo do título */
+  margin: 4px auto 14px;
+  max-width: 820px;
+  color: var(--color-muted);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Remove a linha do primeiro grupo (“Acesso”) */
+.signup-form .fieldset:first-child{
+  border-top: none !important;
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+/* Mantém uma única linha antes dos grupos seguintes */
+.signup-card .fieldset + .fieldset{
+  border-top: 1px solid var(--color-border);
+  padding-top: 20px;
+  margin-top: 18px;
+}
+
+/* Títulos dos grupos (“Acesso”/“Perfil público”) um pouco maiores */
+.legend{
+  font-family: var(--font-title);
+  font-size: 1.3rem;              /* ↑ tamanho */
+  color: var(--color-primary);
+  margin: 0 0 10px 0;
+}
+/* Observação do “Perfil público” abaixo do título (não quebrar o título) */
+.legend-note{
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-body);
+  font-size: .92rem;
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+/* Mais distância entre rótulos e o campo de cima */
+.field{ display: flex; flex-direction: column; }
+.field label{
+  font-weight: 600;
+  font-size: .95rem;
+  margin-top: 12px;               /* ↑ afasta do input acima */
+  margin-bottom: 6px;
+}
+/* Respiro vertical entre linhas da grid */
+.grid-2, .grid-3{
+  row-gap: 22px;                  /* ↑ espaço entre linhas */
+  column-gap: 16px;
+}
+
+/* ===== CORREÇÃO FINAL PARA HEADER DO CADASTRO ===== */
+.signup-header {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  border-bottom: none !important; /* remove o traço herdado */
+  padding: 0 !important; /* remove o padding global do header */
+}
+
+.signup-title {
+  font-family: var(--font-title);
+  font-weight: 600;
+  color: var(--color-primary);
+  font-size: 2.4rem;
+  line-height: 1.15;
+  margin: 0 0 6px 0;
+}
+
+.signup-subtitle {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-muted);
+  max-width: 760px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* === TELA DE LOGIN (ajuste leve) === */
+.login-page .signup-header h1.signup-title {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.login-page .signup-card {
+  max-width: 420px;
+  padding: 36px 40px;
 }

@@ -15,6 +15,7 @@ import Periodo from './Periodo';
 import Detalhes from './Detalhes';
 import Header from './Header';
 import EditarFossil from './EditarFossil';
+import EditarPerfil from './EditarPerfil';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -36,6 +37,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/periodo/:nome" element={<Periodo />} />
           <Route path="/detalhes/:id" element={<Detalhes />} />
           <Route path="/editar/:id" element={<EditarFossil />} />
+          <Route path="/perfil/editar" element={<EditarPerfil />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

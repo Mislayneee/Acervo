@@ -1,0 +1,311 @@
+openapi: 3.0.3
+info:
+  title: API - Acervo de Fósseis Vegetais
+  version: 1.0.0
+  description: |
+    Documentação mínima para o TCC. Endpoints principais com autenticação Bearer.
+servers:
+  - url: http://localhost:3001
+    description: Local
+
+tags:
+  - name: Health
+  - name: Auth
+  - name: Fósseis
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Healthcheck
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { type: object, properties: { ok: { type: boolean } } }
+              example: { ok: true }
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Registrar usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRegister'
+            example:
+              nome: "Usuário Demo"
+              email: "demo@demo.com"
+              senha: "demo123"
+      responses:
+        '201':
+          description: Usuário criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLogin'
+            example:
+              email: "demo@demo.com"
+              senha: "demo123"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /fosseis:
+    get:
+      tags: [Fósseis]
+      summary: Listar/buscar fósseis
+      parameters:
+        - { $ref: '#/components/parameters/q' }
+        - { $ref: '#/components/parameters/especie' }
+        - { $ref: '#/components/parameters/familia' }
+        - { $ref: '#/components/parameters/periodo' }
+        - { $ref: '#/components/parameters/localizacao' }
+        - { $ref: '#/components/parameters/userId' }
+        - { $ref: '#/components/parameters/page' }
+        - { $ref: '#/components/parameters/limit' }
+        - { $ref: '#/components/parameters/orderBy' }
+        - { $ref: '#/components/parameters/orderDir' }
+      responses:
+        '200':
+          description: Lista paginada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Fossil' }
+                  page: { type: integer, example: 1 }
+                  limit: { type: integer, example: 12 }
+                  total: { type: integer, example: 42 }
+                  pages: { type: integer, example: 4 }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [Fósseis]
+      summary: Criar fóssil (upload de imagem)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FossilCreateMultipart'
+            encoding:
+              image:
+                contentType: [image/jpeg, image/png, image/webp]
+      responses:
+        '201':
+          description: Criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Fossil' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /fosseis/{id}:
+    get:
+      tags: [Fósseis]
+      summary: Detalhar fóssil
+      parameters:
+        - in: path
+          name: id
+          schema: { type: integer }
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Fossil' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Fósseis]
+      summary: Atualizar fóssil (com ou sem nova imagem)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          schema: { type: integer }
+          required: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FossilUpdateMultipart'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Fossil' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Fósseis]
+      summary: Remover fóssil
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          schema: { type: integer }
+          required: true
+      responses:
+        '204':
+          description: Removido
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    q:            { in: query, name: q,            schema: { type: string }, description: Busca geral }
+    especie:      { in: query, name: especie,      schema: { type: string } }
+    familia:      { in: query, name: familia,      schema: { type: string } }
+    periodo:      { in: query, name: periodo,      schema: { type: string }, description: Se for enum no Prisma, use um dos valores válidos }
+    localizacao:  { in: query, name: localizacao,  schema: { type: string } }
+    userId:       { in: query, name: userId,       schema: { type: integer } }
+    page:         { in: query, name: page,         schema: { type: integer, minimum: 1 }, example: 1 }
+    limit:        { in: query, name: limit,        schema: { type: integer, minimum: 1, maximum: 50 }, example: 12 }
+    orderBy:
+      in: query
+      name: orderBy
+      schema:
+        type: string
+        enum: [createdAt, especie, familia, periodo, localizacao]
+      example: createdAt
+    orderDir:
+      in: query
+      name: orderDir
+      schema: { type: string, enum: [asc, desc] }
+      example: desc
+
+  schemas:
+    AuthRegister:
+      type: object
+      required: [nome, email, senha]
+      properties:
+        nome:  { type: string }
+        email: { type: string, format: email }
+        senha: { type: string, format: password }
+
+    AuthLogin:
+      type: object
+      required: [email, senha]
+      properties:
+        email: { type: string, format: email }
+        senha: { type: string, format: password }
+
+    AuthResponse:
+      type: object
+      properties:
+        token: { type: string }
+        user:
+          type: object
+          properties:
+            id:    { type: integer }
+            nome:  { type: string }
+            email: { type: string }
+
+    Fossil:
+      type: object
+      properties:
+        id:          { type: integer }
+        especie:     { type: string }
+        familia:     { type: string, nullable: true }
+        periodo:     { type: string }
+        localizacao: { type: string, nullable: true }
+        descricao:   { type: string, nullable: true }
+        imageUrl:    { type: string, nullable: true }
+        createdAt:   { type: string, format: date-time }
+        userId:      { type: integer }
+
+    FossilCreateMultipart:
+      type: object
+      required: [especie, periodo]
+      properties:
+        especie:     { type: string }
+        familia:     { type: string }
+        periodo:     { type: string, example: "Devoniano" }
+        localizacao: { type: string }
+        descricao:   { type: string }
+        image:
+          type: string
+          format: binary
+          description: Arquivo de imagem (jpeg/png/webp), máx. 5MB
+
+    FossilUpdateMultipart:
+      type: object
+      properties:
+        especie:     { type: string }
+        familia:     { type: string }
+        periodo:     { type: string }
+        localizacao: { type: string }
+        descricao:   { type: string }
+        image:
+          type: string
+          format: binary
+
+  responses:
+    BadRequest:
+      description: Requisição inválida
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { error: "Dados inválidos." }
+    Unauthorized:
+      description: Não autenticado
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { error: "Token inválido." }
+    Forbidden:
+      description: Sem permissão (não é o dono do recurso)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { error: "Acesso negado." }
+    NotFound:
+      description: Não encontrado
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { error: "Fóssil não encontrado." }
+    ServerError:
+      description: Erro interno
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { error: "Erro ao processar." }
+
+    Error:
+      type: object
+      properties:
+        error: { type: string }
