@@ -1,27 +1,39 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
+/* ========= Tipos ========= */
 export type User = {
   id: number;
   nome: string;
   email: string;
 
-  // --- Campos públicos vindos do backend ---
-  role?: string | null; // Atuação
+  // Perfil público (opcionais)
+  role?: string | null;
   affiliation?: string | null;
   city?: string | null;
   state?: string | null;
   country?: string | null;
   lattes?: string | null;
 
-  // --- Preferências de privacidade ---
+  // Preferências de privacidade
   showName?: boolean;
   showAffiliation?: boolean;
   showContact?: boolean;
   contactPublic?: string | null;
 
-  // --- Timestamps (opcionais) ---
   createdAt?: string;
   updatedAt?: string;
+};
+
+type RegisterOpts = {
+  affiliation?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  lattes?: string;
+  showName?: boolean;
+  showAffiliation?: boolean;
+  showContact?: boolean;
+  contactPublic?: string;
 };
 
 type AuthContextType = {
@@ -29,7 +41,13 @@ type AuthContextType = {
   token: string | null;
   loading: boolean;
   login: (email: string, senha: string) => Promise<void>;
-  register: (nome: string, email: string, senha: string, role: string) => Promise<void>;
+  register: (
+    nome: string,
+    email: string,
+    senha: string,
+    role: string,
+    opts?: RegisterOpts
+  ) => Promise<void>;
   logout: () => void;
   setAuth: (user: User | null, token: string | null) => void;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
@@ -38,12 +56,19 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const LS_KEY = "acervo.auth";
 
+/* ========= Provider ========= */
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Restaura sessão
+  // Base da API (com fallback)
+  const base = useMemo(
+    () => (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/$/, ""),
+    []
+  );
+
+  // Restaura sessão do localStorage
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LS_KEY);
@@ -55,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     } catch {
-      // ignora erros
+      // ignora
     } finally {
       setLoading(false);
     }
@@ -64,14 +89,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const persist = (u: User | null, t: string | null) => {
     setUser(u);
     setToken(t);
-    if (u && t) localStorage.setItem(LS_KEY, JSON.stringify({ user: u, token: t }));
-    else localStorage.removeItem(LS_KEY);
+    if (u && t) {
+      localStorage.setItem(LS_KEY, JSON.stringify({ user: u, token: t }));
+    } else {
+      localStorage.removeItem(LS_KEY);
+    }
   };
 
   const setAuth = (u: User | null, t: string | null) => persist(u, t);
 
-  const base = import.meta.env.VITE_API_URL;
-
+  /* ======== Ações ======== */
   const login = async (email: string, senha: string) => {
     const resp = await fetch(`${base}/auth/login`, {
       method: "POST",
@@ -83,11 +110,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     persist(data.user, data.token);
   };
 
-  const register = async (nome: string, email: string, senha: string, role: string) => {
+  // Cadastro com campos públicos + flags
+  const register = async (
+    nome: string,
+    email: string,
+    senha: string,
+    role: string,
+    opts?: RegisterOpts
+  ) => {
+    const body = {
+      nome,
+      email,
+      senha,
+      role: role ?? null,
+      affiliation: opts?.affiliation ?? null,
+      city: opts?.city ?? null,
+      state: opts?.state ?? null,
+      country: opts?.country ?? null,
+      lattes: opts?.lattes ?? null,
+      showName: opts?.showName ?? true,
+      showAffiliation: opts?.showAffiliation ?? true,
+      showContact: opts?.showContact ?? false,
+      contactPublic: opts?.showContact ? opts?.contactPublic ?? null : null,
+    };
+
     const resp = await fetch(`${base}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nome, email, senha, role }),
+      body: JSON.stringify(body),
     });
     const data = await resp.json().catch(() => ({}));
     if (!resp.ok) throw new Error(data?.error || "Falha no cadastro.");
@@ -113,6 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+/* ========= Hook ========= */
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth deve ser usado dentro de <AuthProvider>");

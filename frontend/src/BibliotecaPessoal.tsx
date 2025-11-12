@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./index.css";
 import { useAuth } from "./AuthContext";
 import { makeImgSrc } from "./lib/img"; // ✅ usa o mesmo helper da Biblioteca/Período
@@ -21,6 +21,9 @@ type ApiResp = {
 };
 
 const LIMIT = 12;
+
+// ajuste aqui se sua rota de edição for diferente
+const EDIT_ROUTE = (id: number) => `/editar/${id}`;
 
 /* util: fecha menu ao clicar fora */
 function useClickAway<T extends HTMLElement>(onAway: () => void) {
@@ -62,6 +65,9 @@ function CardPessoal({
   const BTN_W = 22;        // largura do botão ⋮
   const BTN_H = 24;        // altura do botão ⋮
   const BTN_PAD = 4;       // padding interno do botão ⋮
+
+  // faixa de segurança para o texto não “passar por baixo” do ⋮
+  const SAFE_RIGHT = BTN_W + BTN_PAD * 2 + 10; // ~36px
 
   const cardZ = menuOpen ? 1001 : 1;
 
@@ -121,7 +127,8 @@ function CardPessoal({
           />
         </div>
 
-        <div style={{ minWidth: 0 }}>
+        {/* textos com padding-right de segurança */}
+        <div style={{ minWidth: 0, paddingRight: SAFE_RIGHT }}>
           <div
             className="bib-title"
             title={title}
@@ -131,12 +138,21 @@ function CardPessoal({
               marginBottom: 4,
               minHeight: 34,
               wordBreak: "break-word",
+              maxWidth: "100%",
             }}
           >
             {title}
           </div>
           {subtitle && (
-            <div className="muted" style={{ fontSize: 13, lineHeight: 1.2 }}>
+            <div
+              className="muted"
+              style={{
+                fontSize: 13,
+                lineHeight: 1.2,
+                maxWidth: "100%",
+                overflowWrap: "anywhere",
+              }}
+            >
               {subtitle}
             </div>
           )}
@@ -256,7 +272,9 @@ function CardPessoal({
 
 /* ---------- PÁGINA ---------- */
 export default function BibliotecaPessoal() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const navigate = useNavigate();
+
   const [data, setData] = useState<ApiResp>({
     items: [],
     total: 0,
@@ -325,12 +343,49 @@ export default function BibliotecaPessoal() {
     };
   }, [apiBase, user?.id, page]);
 
+  // ---- handlers de edição e exclusão ----
+  const onEdit = (id: number) => {
+    navigate(EDIT_ROUTE(id));
+  };
+
+  const onDelete = async (id: number, especie: string) => {
+    if (!token) {
+      alert("Você precisa estar logado.");
+      return;
+    }
+    if (!confirm(`Excluir "${especie}"? Essa ação não pode ser desfeita.`)) return;
+
+    try {
+      const resp = await fetch(`${apiBase}/fosseis/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!resp.ok) {
+        const j = await resp.json().catch(() => ({}));
+        throw new Error(j?.error || "Falha ao excluir.");
+      }
+      // remove do estado
+      setData((prev) => ({
+        ...prev,
+        items: prev.items.filter((f) => f.id !== id),
+        total: Math.max(0, prev.total - 1),
+      }));
+    } catch (e: any) {
+      alert(e?.message || "Erro ao excluir.");
+      console.error(e);
+    }
+  };
+
   return (
     <section className="perfil-page container" style={{ paddingBottom: 24 }}>
-      <div style={{ marginTop: 16, marginBottom: 8 }}>
-        <h1 className="h1" style={{ color: "var(--color-primary)", margin: 0 }}>
+      <div style={{ marginTop: 8, marginBottom: 8 }}>
+        {/* título menor e neutro */}
+        <h3
+          className="section-title"
+          style={{ fontSize: 20, fontWeight: 600, color: "#2b2b2b", margin: "12px 0 4px" }}
+        >
           Biblioteca Pessoal
-        </h1>
+        </h3>
         <span className="muted">
           {data.total} fóssil{data.total === 1 ? "" : "s"}
         </span>
@@ -350,11 +405,9 @@ export default function BibliotecaPessoal() {
               to={`/detalhes/${f.id}`}
               imageUrl={makeImgSrc(apiBase, f.imageUrl)} // ✅ helper unificado
               title={f.especie || "—"}
-              subtitle={`${f.periodo}${
-                f.localizacao ? ` · ${f.localizacao}` : ""
-              }`}
-              onEdit={() => alert(`Editar #${f.id}`)}    // (MUTÁVEL)
-              onDelete={() => alert(`Excluir #${f.id}`)}  // (MUTÁVEL)
+              subtitle={`${f.periodo}${f.localizacao ? ` · ${f.localizacao}` : ""}`}
+              onEdit={() => onEdit(f.id)}
+              onDelete={() => onDelete(f.id, f.especie)}
             />
           ))}
         </div>

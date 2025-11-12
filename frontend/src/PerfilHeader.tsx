@@ -1,180 +1,149 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 
+function clean(v?: string | null) {
+  const s = (v ?? "").toString().trim();
+  if (!s || s.toLowerCase() === "null" || s.toLowerCase() === "undefined") return "";
+  return s;
+}
+
+function Dot({
+  visible,
+  tipVisible,
+  tipHidden,
+}: {
+  visible?: boolean;
+  tipVisible: string;
+  tipHidden: string;
+}) {
+  const tip = visible ? tipVisible : tipHidden;
+  const color = visible ? "#2f6b2f" : "#9aa3a0";
+  return (
+    <span
+      title={tip}
+      aria-label={tip}
+      style={{
+        display: "inline-block",
+        width: 8,
+        height: 8,
+        borderRadius: "50%",
+        background: color,
+        marginLeft: 6,
+      }}
+    />
+  );
+}
+
 export default function PerfilHeader() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
 
-  // fecha o menu ao clicar fora
-  useEffect(() => {
-    function onClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
-  }, []);
+  const nome        = clean(user?.nome) || "Nome do Usuário";
+  const role        = clean(user?.role);
+  const affiliation = clean(user?.affiliation);
+  const lattes      = clean(user?.lattes);
+  const contact     = clean(user?.contactPublic);
 
-  // helpers de exibição
-  const nome = user?.nome || "Nome Completo do Usuário";
-  const role = user?.role || "";
-  const affiliation = (user as any)?.affiliation || "";     // campos públicos (opcionais)
-  const city = (user as any)?.city || "";
-  const state = (user as any)?.state || "";
-  const country = (user as any)?.country || "";
-  const lattes = (user as any)?.lattes || "";
+  const showName        = user?.showName ?? true;
+  const showAffiliation = user?.showAffiliation ?? true;
+  const showContact     = user?.showContact ?? false;
 
-  const temLocal = Boolean(city || state || country);
-  const localStr = [city, state, country].filter(Boolean).join(", ");
+  const headerStyle: React.CSSProperties = {
+    maxWidth: 960,
+    margin: "20px auto 8px",
+    padding: "16px 20px",
+    background: "#fff",
+    border: "1px solid #e7ece7",
+    borderRadius: 14,
+    boxShadow: "0 10px 24px rgba(0,0,0,.05)",
+    fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
+  };
+
+  const row: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    flexWrap: "wrap",
+    color: "#31453a",
+    fontSize: 14, // mesma sensação de “SP, Argentina”
+  };
 
   return (
-    <div
-      style={{
-        maxWidth: 960,
-        margin: "36px auto 18px",
-        padding: "0 24px",
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-        gap: 16,
-      }}
-    >
-      {/* Bloco de informações (esquerda) */}
-      <div>
+    <section style={headerStyle} aria-labelledby="perfil-cabecalho">
+      {/* Título + ponto de visibilidade do nome */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
         <h1
+          id="perfil-cabecalho"
           style={{
             margin: 0,
             fontFamily: "Playfair Display, serif",
-            fontWeight: 700,
+            fontWeight: 800,
             fontSize: 28,
-            color: "#122b12",
+            color: "#0e2010",
+            letterSpacing: 0.2,
           }}
         >
           {nome}
         </h1>
-
-        {role && (
-          <div style={{ color: "#4a604e", fontSize: 15, marginTop: 6 }}>
-            {role}
-          </div>
-        )}
-
-        {affiliation && (
-          <div style={{ color: "#4a604e", fontSize: 15, marginTop: 2 }}>
-            {affiliation}
-          </div>
-        )}
-
-        {temLocal && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              color: "#4a604e",
-              fontSize: 14,
-              marginTop: 10,
-            }}
-          >
-            <img
-              src="/icons/location.svg"
-              alt="Localização"
-              style={{ width: 16, height: 16 }}
-              onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}
-            />
-            <span>{localStr}</span>
-          </div>
-        )}
-
-        {lattes && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              color: "#4a604e",
-              fontSize: 14,
-              marginTop: 6,
-            }}
-          >
-            <img
-              src="/icons/lattes.svg"
-              alt="Currículo Lattes"
-              style={{ width: 16, height: 16 }}
-              onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}
-            />
-            <a
-              href={lattes}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "#2f6b2f", textDecoration: "none", fontWeight: 600 }}
-            >
-              Currículo Lattes
-            </a>
-          </div>
-        )}
-      </div>
-
-      {/* Engrenagem (direita) */}
-      <div ref={ref} style={{ position: "relative" }}>
-        <img
-          src="/config.png"
-          alt="Configurações"
-          title="Configurações"
-          onClick={() => setOpen((v) => !v)}
-          style={{ width: 28, height: 28, cursor: "pointer" }}
+        <Dot
+          visible={showName}
+          tipVisible="Seu nome está visível nas páginas de fósseis."
+          tipHidden="Seu nome está oculto nas páginas de fósseis."
         />
-        {open && (
-          <div
-            style={{
-              position: "absolute",
-              right: 0,
-              top: 36,
-              background: "#fff",
-              border: "1px solid #e7ece7",
-              borderRadius: 10,
-              boxShadow: "0 6px 16px rgba(0,0,0,.08)",
-              minWidth: 220,
-              zIndex: 10,
-            }}
+      </div>
+
+      {(role || affiliation) && (
+        <div style={{ ...row, marginTop: 8 }}>
+          {role && <strong>{role}</strong>}
+          {role && affiliation && <span aria-hidden style={{ color: "#b9c4bd" }}>•</span>}
+          {affiliation && (
+            <>
+              <span>{affiliation}</span>
+              <Dot
+                visible={showAffiliation}
+                tipVisible="Sua afiliação está visível nas páginas de fósseis."
+                tipHidden="Sua afiliação está oculta nas páginas de fósseis."
+              />
+            </>
+          )}
+        </div>
+      )}
+
+      {lattes && (
+        <div style={{ ...row, marginTop: 6 }}>
+          <span style={{ color: "#44574d" }}>Lattes:</span>
+          <a
+            href={lattes}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="link-reset"
+            title={lattes}
           >
-            <button
-              onClick={() => {
-                setOpen(false);
-                navigate("/perfil/editar");
-              }}
-              style={itemBtn}
-            >
-              Editar perfil
-            </button>
+            {lattes}
+          </a>
+        </div>
+      )}
 
-            <div style={{ height: 1, background: "#e7ece7", margin: "4px 8px" }} />
-
-            <button
-              onClick={() => {
-                setOpen(false);
-                logout();
-                navigate("/");
-              }}
-              style={{ ...itemBtn, color: "#a11", fontWeight: 700 }}
-            >
-              Sair
-            </button>
-          </div>
+      <div style={{ ...row, marginTop: 2 }}>
+        <span style={{ color: "#44574d" }}>Contato:</span>
+        {showContact && contact ? (
+          <>
+            <a href={`mailto:${contact}`} className="link-reset">{contact}</a>
+            <Dot
+              visible
+              tipVisible="Seu contato público está visível nas páginas de fósseis."
+              tipHidden=""
+            />
+          </>
+        ) : (
+          <>
+            <span className="muted">não exibido</span>
+            <Dot
+              visible={false}
+              tipVisible=""
+              tipHidden="Seu contato público está oculto."
+            />
+          </>
         )}
       </div>
-    </div>
+    </section>
   );
 }
-
-const itemBtn: React.CSSProperties = {
-  width: "100%",
-  textAlign: "left",
-  background: "transparent",
-  border: "none",
-  padding: "10px 12px",
-  cursor: "pointer",
-  fontSize: 14,
-};

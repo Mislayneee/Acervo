@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
 type Fossil = {
   id: number;
@@ -12,9 +12,23 @@ type Fossil = {
   imageUrl?: string | null;
 };
 
+// 🎨 Constantes de cor
+const COLOR_PRIMARY = "var(--color-primary, #0b4e2f)";
+const COLOR_PRIMARY_HOVER = "var(--color-primary-hover, #064d2f)";
+
 const periodos = [
-  'Cambriano','Ordoviciano','Siluriano','Devoniano','Carbonífero',
-  'Permiano','Triássico','Jurássico','Cretáceo','Paleógeno','Neógeno','Quaternário'
+  "Cambriano",
+  "Ordoviciano",
+  "Siluriano",
+  "Devoniano",
+  "Carbonífero",
+  "Permiano",
+  "Triássico",
+  "Jurássico",
+  "Cretáceo",
+  "Paleógeno",
+  "Neógeno",
+  "Quaternário",
 ];
 
 export default function EditarFossil() {
@@ -27,20 +41,20 @@ export default function EditarFossil() {
   const [error, setError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
-    especie: '',
-    familia: '',
-    periodo: '',
-    localizacao: '',
-    descricao: '',
+    especie: "",
+    familia: "",
+    periodo: "",
+    localizacao: "",
+    descricao: "",
     imagem: null as File | null,
   });
 
   const baseUrl = useMemo(
-    () => import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '',
+    () => (import.meta.env.VITE_API_URL?.replace(/\/$/, "") || ""),
     []
   );
 
-  // carrega dados existentes
+  // carregar dados existentes
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -49,30 +63,35 @@ export default function EditarFossil() {
         setError(null);
         const r = await fetch(`${baseUrl}/fosseis/${id}`);
         const data: Fossil = await r.json();
-        if (!r.ok) throw new Error('Não foi possível carregar o fóssil.');
+        if (!r.ok) throw new Error("Não foi possível carregar o fóssil.");
 
         if (!alive) return;
         setForm((f) => ({
           ...f,
-          especie: data.especie || '',
-          familia: data.familia || '',
-          periodo: data.periodo || '',
-          localizacao: data.localizacao || '',
-          descricao: data.descricao || '',
+          especie: data.especie || "",
+          familia: data.familia || "",
+          periodo: data.periodo || "",
+          localizacao: data.localizacao || "",
+          descricao: data.descricao || "",
           imagem: null,
         }));
         setLoading(false);
       } catch (e: any) {
         if (!alive) return;
-        setError(e?.message || 'Erro ao carregar.');
+        setError(e?.message || "Erro ao carregar.");
         setLoading(false);
       }
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, [id, baseUrl]);
 
   const handleChangeText = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement>
+      | React.ChangeEvent<HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
@@ -87,11 +106,11 @@ export default function EditarFossil() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) {
-      alert('Faça login novamente.');
+      alert("Faça login novamente.");
       return;
     }
     if (!form.especie || !form.familia || !form.periodo || !form.localizacao) {
-      alert('Preencha espécie, família, período e localização.');
+      alert("Preencha espécie, família, período e localização.");
       return;
     }
 
@@ -100,159 +119,213 @@ export default function EditarFossil() {
       setError(null);
 
       const fd = new FormData();
-      fd.append('especie', form.especie);
-      fd.append('familia', form.familia);
-      fd.append('periodo', form.periodo);
-      fd.append('localizacao', form.localizacao);
-      fd.append('descricao', form.descricao);
-      if (form.imagem) fd.append('imagem', form.imagem);
+      fd.append("especie", form.especie);
+      fd.append("familia", form.familia);
+      fd.append("periodo", form.periodo);
+      fd.append("localizacao", form.localizacao);
+      fd.append("descricao", form.descricao);
+      if (form.imagem) fd.append("imagem", form.imagem);
 
       const r = await fetch(`${baseUrl}/fosseis/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
         body: fd,
       });
       const data = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(data?.error || 'Falha ao salvar.');
+      if (!r.ok) throw new Error(data?.error || "Falha ao salvar.");
 
-      // vai para a página de detalhes
       navigate(`/detalhes/${id}`);
     } catch (e: any) {
-      setError(e?.message || 'Erro ao salvar.');
+      setError(e?.message || "Erro ao salvar.");
     } finally {
       setSaving(false);
     }
   };
 
-  // imagem atual (preview)
-  const currentImgSrc = useMemo(() => {
-    // carregamos o fossil no efeito, mas não guardamos a imageUrl diretamente aqui;
-    // para o preview, buscamos novamente o registro leve do servidor? melhor: usa <img> com src montado
-    // como mantemos só o nome no backend, vamos buscar o registro outra vez ou reaproveitar form?
-    // solução simples: renderizar a miniatura só se já existir em cache do navegador
-    // Para robustez, fazemos uma chamada leve no início (já feita). Então montamos o caminho:
-    // Como não salvamos a imageUrl no form, podemos reusar a de GET /fosseis/:id:
-    return null; // o bloco de preview abaixo busca diretamente do endpoint novamente
-  }, []);
-
   return (
-    <main style={{ maxWidth: 800, margin: '32px auto', padding: '0 24px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <h2 style={{ margin: 0, fontFamily: 'Playfair Display, serif', fontSize: 26 }}>Editar fóssil</h2>
-        <Link to={`/detalhes/${id}`} style={{ color: '#1a4d2e', fontWeight: 600 }}>Voltar aos detalhes</Link>
-      </div>
+    <main
+      className="container"
+      style={{ maxWidth: 880, paddingTop: 12, paddingBottom: 28 }}
+    >
+      <h2 className="h2" style={{ marginTop: 10 }}>
+        Editar fóssil
+      </h2>
 
       {loading && <div className="skeleton">Carregando...</div>}
-      {error && <div className="erro" style={{ marginBottom: 12 }}>{error}</div>}
+      {error && <div className="form-alert" style={{ maxWidth: 760 }}>{error}</div>}
 
       {!loading && !error && (
-        <form onSubmit={onSubmit} className="form-container" style={{ maxWidth: 800, marginTop: 0 }}>
-          {/* Preview atual (se existir) */}
+        <form onSubmit={onSubmit} className="signup-card" style={{ padding: 20 }}>
+          {/* Preview atual */}
           <PreviewImagem fossilId={Number(id)} />
 
-          <label>Espécie</label>
-          <input
-            className="input-claro"
-            type="text"
-            name="especie"
-            value={form.especie}
-            onChange={handleChangeText}
-            placeholder="Ex: Psilophyton princeps"
-            required
-          />
-
-          <label>Família</label>
-          <input
-            className="input-claro"
-            type="text"
-            name="familia"
-            value={form.familia}
-            onChange={handleChangeText}
-            placeholder="Ex: Rhyniaceae"
-            required
-          />
-
-          <label>Período</label>
-          <select
-            className="input-claro"
-            name="periodo"
-            value={form.periodo}
-            onChange={handleChangeText}
-            required
-          >
-            <option value="">Selecione um período</option>
-            {periodos.map((p) => <option key={p} value={p}>{p}</option>)}
-          </select>
-
-          <label>Localização</label>
-          <input
-            className="input-claro"
-            type="text"
-            name="localizacao"
-            value={form.localizacao}
-            onChange={handleChangeText}
-            placeholder="Ex: Serra da Capivara, Piauí, Brasil"
-            required
-          />
-
-          <label>Descrição</label>
-          <textarea
-            className="input-claro"
-            name="descricao"
-            rows={4}
-            value={form.descricao}
-            onChange={handleChangeText}
-            placeholder="Observações, contexto do achado, etc."
-          />
-
-          <label>Nova imagem (opcional)</label>
-          <div
-            className="input-claro"
-            style={{
-              border: '1px dashed #ccc',
-              padding: 18,
-              textAlign: 'center',
-              marginBottom: 12,
-              background: '#f2f5f1'
-            }}
-          >
-            <p style={{ margin: '0 0 6px' }}><strong>Enviar nova imagem</strong></p>
-            <p style={{ margin: 0, fontSize: 12, color: '#6a6f6a' }}>Formatos: JPG, PNG, WEBP — até 5MB</p>
-            <input type="file" onChange={handleImage} accept="image/jpeg,image/png,image/webp" />
-            {form.imagem && <div style={{ marginTop: 8, fontSize: 12 }}>{form.imagem.name}</div>}
+          <div className="field">
+            <label>Espécie</label>
+            <input
+              className="input-claro"
+              type="text"
+              name="especie"
+              value={form.especie}
+              onChange={handleChangeText}
+              placeholder="Ex: Psilophyton princeps"
+              required
+              style={inputClaro}
+            />
           </div>
 
-          <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
-            <button
-              type="submit"
-              disabled={saving}
+          <div className="field">
+            <label>Família</label>
+            <input
+              className="input-claro"
+              type="text"
+              name="familia"
+              value={form.familia}
+              onChange={handleChangeText}
+              placeholder="Ex: Rhyniaceae"
+              required
+              style={inputClaro}
+            />
+          </div>
+
+          <div className="field">
+            <label>Período</label>
+            <select
+              className="input-claro"
+              name="periodo"
+              value={form.periodo}
+              onChange={handleChangeText}
+              required
+              style={{ ...inputClaro, cursor: "pointer" }}
+            >
+              <option value="">Selecione um período</option>
+              {periodos.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="field">
+            <label>Localização</label>
+            <input
+              className="input-claro"
+              type="text"
+              name="localizacao"
+              value={form.localizacao}
+              onChange={handleChangeText}
+              placeholder="Ex: Serra da Capivara, Piauí, Brasil"
+              required
+              style={inputClaro}
+            />
+          </div>
+
+          <div className="field">
+            <label>Descrição</label>
+            <textarea
+              className="input-claro"
+              name="descricao"
+              rows={4}
+              value={form.descricao}
+              onChange={handleChangeText}
+              placeholder="Observações, contexto do achado, etc."
+              style={inputClaro}
+            />
+          </div>
+
+          <div className="field" style={{ marginTop: 6 }}>
+            <label>Nova imagem (opcional)</label>
+            <div
               style={{
-                backgroundColor: '#1a4d2e',
-                color: '#fff',
-                padding: '10px 20px',
-                borderRadius: 8,
-                border: 'none',
-                fontWeight: 700,
-                cursor: 'pointer'
+                border: "1px dashed var(--color-border)",
+                padding: 14,
+                borderRadius: 10,
+                background: "#f6f8f6",
               }}
             >
-              {saving ? 'Salvando...' : 'Salvar alterações'}
-            </button>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  flexWrap: "wrap",
+                }}
+              >
+                <label
+                  htmlFor="img-input"
+                  className="btn"
+                  style={{
+                    background: "#fff",
+                    border: "1px solid var(--color-border)",
+                    color: "var(--color-text)",
+                    padding: "8px 12px",
+                    borderRadius: 12,
+                    cursor: "pointer",
+                    fontWeight: 600,
+                  }}
+                >
+                  Selecionar nova imagem
+                </label>
+                <input
+                  id="img-input"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleImage}
+                  style={{ display: "none" }}
+                />
+                <span className="muted" style={{ fontSize: 12 }}>
+                  Formatos: JPG, PNG, WEBP — até 5MB
+                </span>
+              </div>
+              {form.imagem && (
+                <div style={{ marginTop: 8, fontSize: 12 }}>
+                  {form.imagem.name}
+                </div>
+              )}
+            </div>
+          </div>
 
+          {/* Botões — pill, à direita, largura automática */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 12,
+              marginTop: 18,
+            }}
+          >
             <button
               type="button"
               onClick={() => navigate(-1)}
-              style={{
-                backgroundColor: '#fff',
-                color: '#1a4d2e',
-                padding: '10px 20px',
-                borderRadius: 8,
-                border: '1px solid #e7ece7',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
+              className="btn btn-ghost"
+              style={btnGhost}
+              onMouseEnter={(e) =>
+                ((e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  "#f3f3f3")
+              }
+              onMouseLeave={(e) =>
+                ((e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  "#fff")
+              }
             >
               Cancelar
+            </button>
+
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={saving}
+              style={btnPrimary}
+              onMouseEnter={(e) =>
+                ((e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  COLOR_PRIMARY_HOVER)
+              }
+              onMouseLeave={(e) =>
+                ((e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  COLOR_PRIMARY)
+              }
+            >
+              {saving ? "Salvando…" : "Salvar alterações"}
             </button>
           </div>
         </form>
@@ -261,12 +334,12 @@ export default function EditarFossil() {
   );
 }
 
-/** Exibe a imagem atual (se houver). Busca o fóssil e monta src completo. */
+/** Exibe a imagem atual (se houver). */
 function PreviewImagem({ fossilId }: { fossilId: number }) {
   const [src, setSrc] = useState<string | null>(null);
   const [loadingImg, setLoadingImg] = useState(true);
   const baseUrl = useMemo(
-    () => import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '',
+    () => import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "",
     []
   );
 
@@ -278,7 +351,7 @@ function PreviewImagem({ fossilId }: { fossilId: number }) {
         const r = await fetch(`${baseUrl}/fosseis/${fossilId}`);
         const data: Fossil = await r.json();
         if (!r.ok) throw new Error();
-        const path = (data.imageUrl || '').replace(/^\/?/, '');
+        const path = (data.imageUrl || "").replace(/^\/?/, "");
         const full = data.imageUrl ? `${baseUrl}/${path}` : null;
         if (alive) setSrc(full);
       } catch {
@@ -287,20 +360,85 @@ function PreviewImagem({ fossilId }: { fossilId: number }) {
         if (alive) setLoadingImg(false);
       }
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, [fossilId, baseUrl]);
-
-  if (loadingImg) return <div className="skeleton" style={{ marginBottom: 12 }}>Carregando imagem...</div>;
-  if (!src) return null;
 
   return (
     <div style={{ marginBottom: 12 }}>
-      <div style={{ fontWeight: 600, marginBottom: 6 }}>Imagem atual</div>
-      <img
-        src={src}
-        alt="Imagem atual do fóssil"
-        style={{ width: '100%', maxHeight: 320, objectFit: 'cover', borderRadius: 8, border: '1px solid #e7ece7' }}
-      />
+      <div
+        style={{
+          width: "100%",
+          aspectRatio: "4 / 1.8",
+          borderRadius: 12,
+          border: "1px solid var(--color-border)",
+          background: "#2e2d31",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#d9c38a",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {loadingImg ? (
+          <div
+            className="skeleton"
+            style={{ background: "transparent", color: "#ccc" }}
+          >
+            Carregando imagem...
+          </div>
+        ) : src ? (
+          <img
+            src={src}
+            alt="Imagem atual do fóssil"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        ) : (
+          <div style={{ textAlign: "center", opacity: 0.6 }}>imagem</div>
+        )}
+      </div>
+      <div className="muted" style={{ marginTop: 6, fontSize: 12 }}>
+        Imagem atual
+      </div>
     </div>
   );
 }
+
+/* ===== estilos inline reutilizáveis ===== */
+const inputClaro: React.CSSProperties = {
+  width: "100%",
+  marginBottom: 12,
+  padding: 10,
+  backgroundColor: "#f2f5f1",
+  border: "none",
+  borderRadius: 6,
+  boxSizing: "border-box",
+};
+
+const btnGhost: React.CSSProperties = {
+  padding: "10px 22px",
+  borderRadius: 9999,
+  lineHeight: 1,
+  border: "1px solid var(--color-border)",
+  background: "#fff",
+  color: "var(--color-text)",
+  fontWeight: 600,
+  cursor: "pointer",
+  transition: "background-color 0.2s ease",
+  width: "fit-content",
+};
+
+const btnPrimary: React.CSSProperties = {
+  padding: "10px 26px",
+  borderRadius: 9999,
+  backgroundColor: COLOR_PRIMARY,
+  color: "#fff",
+  fontWeight: 700,
+  border: "none",
+  cursor: "pointer",
+  lineHeight: 1,
+  width: "fit-content",
+  transition: "background-color 0.2s ease",
+};

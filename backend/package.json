@@ -1,19 +1,20 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "",
+  "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
     "prisma:studio": "prisma studio",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
+    "seed": "node scripts/seed.js",
+    "setup": "prisma generate && prisma migrate dev -n init_fossil && prisma db seed"
+  },
+  "prisma": {
     "seed": "node scripts/seed.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "@prisma/client": "^6.12.0",
     "bcryptjs": "^3.0.3",

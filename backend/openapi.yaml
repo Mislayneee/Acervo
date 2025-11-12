@@ -3,7 +3,8 @@ info:
   title: API - Acervo de Fósseis Vegetais
   version: 1.0.0
   description: |
-    Documentação mínima para o TCC. Endpoints principais com autenticação Bearer.
+    API responsável pelo cadastro, consulta e atualização de fósseis vegetais.
+    Documentação principal usada no TCC.
 servers:
   - url: http://localhost:3001
     description: Local
@@ -17,19 +18,22 @@ paths:
   /health:
     get:
       tags: [Health]
-      summary: Healthcheck
+      summary: Verificar se o servidor está ativo
       responses:
         '200':
           description: OK
           content:
             application/json:
-              schema: { type: object, properties: { ok: { type: boolean } } }
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
               example: { ok: true }
 
   /auth/register:
     post:
       tags: [Auth]
-      summary: Registrar usuário
+      summary: Registrar novo usuário
       requestBody:
         required: true
         content:
@@ -45,13 +49,14 @@ paths:
           description: Usuário criado
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/AuthResponse' }
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
         '400': { $ref: '#/components/responses/BadRequest' }
 
   /auth/login:
     post:
       tags: [Auth]
-      summary: Login
+      summary: Fazer login
       requestBody:
         required: true
         content:
@@ -66,7 +71,8 @@ paths:
           description: OK
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/AuthResponse' }
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
         '401': { $ref: '#/components/responses/Unauthorized' }
 
   /fosseis:
@@ -86,7 +92,7 @@ paths:
         - { $ref: '#/components/parameters/orderDir' }
       responses:
         '200':
-          description: Lista paginada
+          description: Lista paginada de fósseis
           content:
             application/json:
               schema:
@@ -94,7 +100,8 @@ paths:
                 properties:
                   items:
                     type: array
-                    items: { $ref: '#/components/schemas/Fossil' }
+                    items:
+                      $ref: '#/components/schemas/Fossil'
                   page: { type: integer, example: 1 }
                   limit: { type: integer, example: 12 }
                   total: { type: integer, example: 42 }
@@ -102,7 +109,7 @@ paths:
         '500': { $ref: '#/components/responses/ServerError' }
     post:
       tags: [Fósseis]
-      summary: Criar fóssil (upload de imagem)
+      summary: Criar fóssil (com upload de imagem)
       security: [{ bearerAuth: [] }]
       requestBody:
         required: true
@@ -111,21 +118,22 @@ paths:
             schema:
               $ref: '#/components/schemas/FossilCreateMultipart'
             encoding:
-              image:
+              imagem:
                 contentType: [image/jpeg, image/png, image/webp]
       responses:
         '201':
-          description: Criado
+          description: Fóssil criado
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Fossil' }
+              schema:
+                $ref: '#/components/schemas/Fossil'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
 
   /fosseis/{id}:
     get:
       tags: [Fósseis]
-      summary: Detalhar fóssil
+      summary: Obter detalhes de um fóssil específico
       parameters:
         - in: path
           name: id
@@ -136,7 +144,8 @@ paths:
           description: OK
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Fossil' }
+              schema:
+                $ref: '#/components/schemas/Fossil'
         '404': { $ref: '#/components/responses/NotFound' }
     put:
       tags: [Fósseis]
@@ -153,18 +162,22 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/FossilUpdateMultipart'
+            encoding:
+              imagem:
+                contentType: [image/jpeg, image/png, image/webp]
       responses:
         '200':
-          description: OK
+          description: Fóssil atualizado
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Fossil' }
+              schema:
+                $ref: '#/components/schemas/Fossil'
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
     delete:
       tags: [Fósseis]
-      summary: Remover fóssil
+      summary: Excluir fóssil
       security: [{ bearerAuth: [] }]
       parameters:
         - in: path
@@ -172,8 +185,16 @@ paths:
           schema: { type: integer }
           required: true
       responses:
-        '204':
-          description: Removido
+        '200':
+          description: Fóssil removido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Excluído com sucesso."
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -239,9 +260,9 @@ components:
       properties:
         id:          { type: integer }
         especie:     { type: string }
-        familia:     { type: string, nullable: true }
+        familia:     { type: string }
         periodo:     { type: string }
-        localizacao: { type: string, nullable: true }
+        localizacao: { type: string }
         descricao:   { type: string, nullable: true }
         imageUrl:    { type: string, nullable: true }
         createdAt:   { type: string, format: date-time }
@@ -249,14 +270,14 @@ components:
 
     FossilCreateMultipart:
       type: object
-      required: [especie, periodo]
+      required: [especie, familia, periodo, localizacao]
       properties:
         especie:     { type: string }
         familia:     { type: string }
         periodo:     { type: string, example: "Devoniano" }
         localizacao: { type: string }
         descricao:   { type: string }
-        image:
+        imagem:
           type: string
           format: binary
           description: Arquivo de imagem (jpeg/png/webp), máx. 5MB
@@ -269,7 +290,7 @@ components:
         periodo:     { type: string }
         localizacao: { type: string }
         descricao:   { type: string }
-        image:
+        imagem:
           type: string
           format: binary
 
@@ -285,7 +306,7 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
-          example: { error: "Token inválido." }
+          example: { error: "Token inválido ou ausente." }
     Forbidden:
       description: Sem permissão (não é o dono do recurso)
       content:
@@ -293,18 +314,19 @@ components:
           schema: { $ref: '#/components/schemas/Error' }
           example: { error: "Acesso negado." }
     NotFound:
-      description: Não encontrado
+      description: Recurso não encontrado
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
           example: { error: "Fóssil não encontrado." }
     ServerError:
-      description: Erro interno
+      description: Erro interno do servidor
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
-          example: { error: "Erro ao processar." }
+          example: { error: "Erro ao processar requisição." }
 
+  schemas:
     Error:
       type: object
       properties:

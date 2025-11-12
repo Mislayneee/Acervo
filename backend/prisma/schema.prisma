@@ -14,7 +14,7 @@ model User {
   email           String    @unique
   senha           String
 
-  // PERFIL PÚBLICO (todos opcionais p/ não travar migração)
+  // PERFIL PÚBLICO (todos opcionais)
   role            String?
   country         String?
   affiliation     String?
@@ -28,6 +28,31 @@ model User {
   showContact     Boolean   @default(false)
   contactPublic   String?
 
+  // Relação
+  fossils         Fossil[]
+
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+}
+
+model Fossil {
+  id          Int       @id @default(autoincrement())
+  especie     String
+  familia     String
+  periodo     String    // pode virar enum depois (Devoniano, etc.)
+  localizacao String
+  descricao   String?
+  imageUrl    String?
+
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([especie])
+  @@index([familia])
+  @@index([periodo])
+  @@index([localizacao])
+  @@index([createdAt])
 }

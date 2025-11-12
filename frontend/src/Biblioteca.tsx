@@ -64,6 +64,33 @@ function Biblioteca() {
     };
   }, [apiBase]);
 
+  // ======== ORDEM GEOLÓGICA (mais antigo → mais recente) ========
+  const PERIOD_ORDER = [
+    "Cambriano",
+    "Ordoviciano",
+    "Siluriano",
+    "Devoniano",
+    "Carbonífero",
+    "Permiano",
+    "Triássico",
+    "Jurássico",
+    "Cretáceo",
+    "Paleógeno",
+    "Neógeno",
+    "Quaternário",
+  ];
+
+  const normalize = (s: string) =>
+    s.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").trim();
+
+  const RANK = new Map(PERIOD_ORDER.map((p, i) => [normalize(p), i]));
+
+  function getRank(label: string) {
+    const key = normalize(label);
+    return RANK.has(key) ? RANK.get(key)! : Infinity;
+  }
+
+  // ======== AGRUPAMENTO POR PERÍODO ========
   const agrupados: Record<string, Fossil[]> = fosseis.reduce((acc, item) => {
     const key = item.periodo || "Indefinido";
     (acc[key] ||= []).push(item);
@@ -92,8 +119,15 @@ function Biblioteca() {
     );
   }
 
-  const periodos = Object.keys(agrupados);
+  // ======== ORDENA OS PERÍODOS NA ORDEM GEOLÓGICA ========
+  const periodos = Object.keys(agrupados).sort((a, b) => {
+    const ra = getRank(a);
+    const rb = getRank(b);
+    if (ra === rb) return a.localeCompare(b, "pt-BR");
+    return ra - rb;
+  });
 
+  // ======== RENDER ========
   return (
     <main className="container" style={{ paddingBottom: 24 }}>
       <h1 className="h1" style={{ color: "var(--color-primary)" }}>

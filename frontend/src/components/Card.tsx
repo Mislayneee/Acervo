@@ -1,6 +1,6 @@
 // src/components/Card.tsx
 import { Link } from "react-router-dom";
-import React from "react";
+import React, { useState } from "react";
 
 type CardProps = {
   to: string;
@@ -22,24 +22,31 @@ export default function Card({
   className,
   style,
 }: CardProps) {
+  const [hover, setHover] = useState(false);
+
   return (
     <Link
       to={to}
-      state={state} // <— repassa o state para o Link
+      state={state}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       className={`bib-card ${className ?? ""}`}
       style={{
-        background: "#fff",
-        border: "1px solid var(--gray-200)",
+        background: hover ? "var(--color-primary, #0b4e2f)" : "#fff",
+        border: hover ? "1px solid var(--color-primary, #0b4e2f)" : "1px solid var(--gray-200)",
         borderRadius: 12,
         padding: 10,
-        color: "inherit",
+        color: hover ? "#fff" : "inherit",
         textDecoration: "none",
         transition:
-          "background-color .25s ease, box-shadow .25s ease, border-color .25s ease, transform .2s ease",
+          "background-color .25s ease, box-shadow .25s ease, border-color .25s ease, color .25s ease, transform .2s ease",
+        transform: hover ? "translateY(-3px)" : "translateY(0)",
+        boxShadow: hover
+          ? "0 4px 10px rgba(0,0,0,0.12)"
+          : "0 2px 4px rgba(0,0,0,0.05)",
         ...style,
       }}
     >
-      {/* thumb 1:1 como nos demais cards */}
       <div
         className="bib-thumb-wrap"
         style={{
@@ -65,6 +72,8 @@ export default function Card({
             height: "100%",
             objectFit: "cover",
             display: "block",
+            transition: "transform .3s ease",
+            transform: hover ? "scale(1.03)" : "scale(1)",
           }}
         />
       </div>
@@ -73,12 +82,27 @@ export default function Card({
         <div
           className="bib-title"
           title={title}
-          style={{ fontSize: 15, lineHeight: 1.25, marginBottom: 4, minHeight: 34 }}
+          style={{
+            fontSize: 15,
+            lineHeight: 1.25,
+            marginBottom: 4,
+            minHeight: 34,
+            color: hover ? "#fff" : "var(--color-text)",
+            transition: "color .25s ease",
+          }}
         >
           {title}
         </div>
         {subtitle && (
-          <div className="muted" style={{ fontSize: 13, lineHeight: 1.2 }}>
+          <div
+            className="muted"
+            style={{
+              fontSize: 13,
+              lineHeight: 1.2,
+              color: hover ? "#fff" : "var(--gray-600)",
+              transition: "color .25s ease",
+            }}
+          >
             {subtitle}
           </div>
         )}
