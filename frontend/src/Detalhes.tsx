@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useParams, useNavigate } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import "./index.css";
 
 type Author = {
@@ -38,7 +38,6 @@ type FromState =
 export default function Detalhes() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const apiBase = useMemo(
     () => (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/$/, ""),
